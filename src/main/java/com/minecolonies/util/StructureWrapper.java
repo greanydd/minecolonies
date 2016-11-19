@@ -1,8 +1,10 @@
 package com.minecolonies.util;
 
+import com.minecolonies.MineColonies;
 import com.minecolonies.blocks.ModBlocks;
 import com.minecolonies.configuration.Configurations;
 import com.minecolonies.lib.Constants;
+import com.minecolonies.network.messages.SaveScanMessage;
 import com.structures.helpers.StructureProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
@@ -10,8 +12,11 @@ import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -25,8 +30,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -236,9 +240,9 @@ public final class StructureWrapper
      * @param world Current world.
      * @param from  First corner.
      * @param to    Second corner.
-     * @return Message to display to the player.
+     * @param player causing this action.
      */
-    public static String saveStructure(@Nullable World world, @Nullable BlockPos from, @Nullable BlockPos to)
+    public static void saveStructure(@Nullable World world, @Nullable BlockPos from, @Nullable BlockPos to, @NotNull EntityPlayer player)
     {
         if (world == null || from == null || to == null)
         {
@@ -256,17 +260,13 @@ public final class StructureWrapper
         TemplateManager templatemanager = worldserver.getStructureTemplateManager();
 
         String currentMillis = Long.toString(System.currentTimeMillis());
+        String fileName = "/minecolonies/scans/" + LanguageHandler.format("item.scepterSteel.scanFormat", "", currentMillis + ".nbt");
 
-        String fileName = "/../../../" + "minecolonies/scans/" + LanguageHandler.format("item.scepterSteel.scanFormat", "", currentMillis);
         Template template = templatemanager.getTemplate(minecraftserver, new ResourceLocation(fileName));
         template.takeBlocksFromWorld(world, blockpos, size, true, Blocks.STRUCTURE_VOID);
         template.setAuthor(Constants.MOD_ID);
-        if (templatemanager.writeTemplate(minecraftserver, new ResourceLocation(fileName)))
-        {
-            return LanguageHandler.format("item.scepterSteel.scanSuccess", "minecolonies/scans/"
-                    + LanguageHandler.format("item.scepterSteel.scanFormat", "", currentMillis));
-        }
-        return LanguageHandler.format("item.scepterSteel.scanFailure");
+
+        MineColonies.getNetwork().sendTo(new SaveScanMessage(template.writeToNBT(new NBTTagCompound()), fileName), (EntityPlayerMP) player);
     }
 
     /**
@@ -449,6 +449,47 @@ public final class StructureWrapper
             return null;
         }
         return state.getBlock();
+    }
+
+    /**
+     * Creates the scan directories for the scanTool.
+     * @param world the worldIn.
+     */
+    public static void createScanDirectory(@NotNull World world)
+    {
+        File minecolonies;
+        if (world.isRemote)
+        {
+            minecolonies = new File(Minecraft.getMinecraft().mcDataDir, "minecolonies/");
+        }
+        else
+        {
+            MinecraftServer server = world.getMinecraftServer();
+            if(server != null)
+            {
+                minecolonies = server.getFile("minecolonies/");
+            }
+            else
+            {
+                return;
+            }
+        }
+        checkDirectory(minecolonies);
+
+        @NotNull File scans = new File(minecolonies, "scans/");
+        checkDirectory(scans);
+    }
+
+    /**
+     * Checks if directory exists, else creates it.
+     * @param directory the directory to check.
+     */
+    private static void checkDirectory(@NotNull File directory)
+    {
+        if (!directory.exists() && !directory.mkdirs())
+        {
+            Log.getLogger().error("Directory doesn't exist and failed to be created: " + directory.toString());
+        }
     }
 
     /**
