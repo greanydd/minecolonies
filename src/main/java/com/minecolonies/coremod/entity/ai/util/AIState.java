@@ -232,5 +232,14 @@ public enum AIState
     /**
      * Gather dropped items after kill.
      */
-    GUARD_GATHERING
+    GUARD_GATHERING,
+
+          /*
+###Deliveryman###
+    */
+
+    /**
+     * Let the deliveryman search for new work.
+     */
+    DELIVERYMAN_FIND_NEW_WORK
 }

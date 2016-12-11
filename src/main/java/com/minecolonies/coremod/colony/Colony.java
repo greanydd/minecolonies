@@ -7,6 +7,7 @@ import com.minecolonies.coremod.colony.buildings.BuildingFarmer;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
 import com.minecolonies.coremod.colony.buildings.BuildingTownHall;
 import com.minecolonies.coremod.colony.materials.MaterialSystem;
+import com.minecolonies.coremod.colony.materials.Request;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.colony.workorders.AbstractWorkOrder;
 import com.minecolonies.coremod.configuration.Configurations;
@@ -101,13 +102,15 @@ public class Colony implements IColony
     @Nullable
     private BuildingTownHall townHall;
     @NotNull
-    private final Map<BlockPos, AbstractBuilding> buildings    = new HashMap<>();
+    private final Map<BlockPos, AbstractBuilding> buildings      = new HashMap<>();
     //  Citizenry
     @NotNull
-    private final Map<Integer, CitizenData>       citizens     = new HashMap<>();
-    private       int                             topCitizenId = 0;
-    private       int                             maxCitizens  = Configurations.maxCitizens;
-    private       int                             killedMobs   = 0;
+    private final Map<Integer, CitizenData>       citizens       = new HashMap<>();
+    @NotNull
+    private final List<Request>                   workerRequests = new ArrayList<>();
+    private       int                             topCitizenId   = 0;
+    private       int                             maxCitizens    = Configurations.maxCitizens;
+    private       int                             killedMobs     = 0;
 
     /**
      * Constructor for a newly created Colony.
@@ -1423,5 +1426,20 @@ public class Colony implements IColony
     public Map<BlockPos, AbstractBuilding> getBuildings()
     {
         return Collections.unmodifiableMap(buildings);
+    }
+
+    private void cleanUpCompletedRequests()
+    {
+        workerRequests.removeAll(
+          workerRequests.stream()
+            .filter(Request::isCompleted)
+            .collect(Collectors.toList())
+        );
+    }
+
+    public List<Request> getRequests()
+    {
+        this.cleanUpCompletedRequests();
+        return new ArrayList<>(workerRequests);
     }
 }
