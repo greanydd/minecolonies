@@ -123,9 +123,9 @@ public class PathNavigate extends PathNavigateGround
     @Nullable
     public PathResult moveToXYZ(final double x, final double y, final double z, final double speed)
     {
-        int newX = MathHelper.floor_double(x);
+        int newX = MathHelper.floor(x);
         int newY = (int) y;
-        int newZ = MathHelper.floor_double(z);
+        int newZ = MathHelper.floor(z);
 
 
         if ((destination != null
@@ -144,16 +144,16 @@ public class PathNavigate extends PathNavigateGround
         {
             final Vec3d newMove = moveVector.scale(PATHING_INTERMEDIARY_LENGTH / moveLength).add(getEntityPosition());
             originalDestination = new BlockPos(newX, newY, newZ);
-            newX = MathHelper.floor_double(newMove.xCoord);
-            newY = MathHelper.floor_double(newMove.yCoord);
-            newZ = MathHelper.floor_double(newMove.zCoord);
+            newX = MathHelper.floor(newMove.xCoord);
+            newY = MathHelper.floor(newMove.yCoord);
+            newZ = MathHelper.floor(newMove.zCoord);
         }
 
         @NotNull final BlockPos start = AbstractPathJob.prepareStart(entity);
         @NotNull final BlockPos dest = new BlockPos(newX, newY, newZ);
 
         return setPathJob(
-          new PathJobMoveToLocation(entity.worldObj, start, dest, (int) getPathSearchRange()),
+          new PathJobMoveToLocation(entity.world, start, dest, (int) getPathSearchRange()),
           dest, speed);
     }
 
@@ -248,7 +248,7 @@ public class PathNavigate extends PathNavigateGround
         {
             @NotNull final PathPointExtended pEx = (PathPointExtended) this.getPath().getPathPointFromIndex(this.getPath().getCurrentPathIndex());
 
-            if (pEx.isOnLadder)
+            if (pEx.isOnLadder())
             {
                 final Vec3d vec3 = this.getPath().getPosition(this.entity);
 
@@ -256,7 +256,7 @@ public class PathNavigate extends PathNavigateGround
                 {
                     //This way he is less nervous and gets up the ladder
                     double newSpeed = 0.05;
-                    switch (pEx.ladderFacing)
+                    switch (pEx.getLadderFacing())
                     {
                         //  Any of these values is climbing, so adjust our direction of travel towards the ladder
                         case NORTH:
@@ -312,7 +312,7 @@ public class PathNavigate extends PathNavigateGround
             }
             else
             {
-                if (BlockUtils.isPathBlock(worldObj.getBlockState(entity.getPosition().down()).getBlock()))
+                if (BlockUtils.isPathBlock(world.getBlockState(entity.getPosition().down()).getBlock()))
                 {
                     speed = 1.3;
                 }
@@ -342,8 +342,8 @@ public class PathNavigate extends PathNavigateGround
 
             //  If current node is bottom of a ladder, then stay on this node until
             //  the entity reaches the bottom, otherwise they will try to head out early
-            if (pEx.isOnLadder && pEx.ladderFacing == EnumFacing.DOWN
-                  && !pExNext.isOnLadder)
+            if (pEx.isOnLadder() && pEx.getLadderFacing() == EnumFacing.DOWN
+                  && !pExNext.isOnLadder())
             {
                 final Vec3d vec3 = getEntityPosition();
                 if ((vec3.yCoord - (double) pEx.yCoord) < 0.001)
@@ -394,12 +394,11 @@ public class PathNavigate extends PathNavigateGround
      * @param speed walking speed.
      * @return the result of the search.
      */
-    @NotNull
     public PathJobFindTree.TreePathResult moveToTree(final int range, final double speed)
     {
         @NotNull final BlockPos start = AbstractPathJob.prepareStart(entity);
         return (PathJobFindTree.TreePathResult) setPathJob(
-          new PathJobFindTree(entity.worldObj, start, ((EntityCitizen) entity).getWorkBuilding().getLocation(), range), null, speed);
+          new PathJobFindTree(entity.world, start, ((EntityCitizen) entity).getWorkBuilding().getLocation(), range), null, speed);
     }
 
     /**
@@ -407,6 +406,7 @@ public class PathNavigate extends PathNavigateGround
      *
      * @param range in the range.
      * @param speed walking speed.
+     * @param ponds a list of ponds.
      * @return the result of the search.
      */
     @Nullable
@@ -414,7 +414,7 @@ public class PathNavigate extends PathNavigateGround
     {
         @NotNull final BlockPos start = AbstractPathJob.prepareStart(entity);
         return (PathJobFindWater.WaterPathResult) setPathJob(
-          new PathJobFindWater(entity.worldObj, start, ((EntityCitizen) entity).getWorkBuilding().getLocation(), range, ponds), null, speed);
+          new PathJobFindWater(entity.world, start, ((EntityCitizen) entity).getWorkBuilding().getLocation(), range, ponds), null, speed);
     }
 
     /**
@@ -458,7 +458,7 @@ public class PathNavigate extends PathNavigateGround
         @NotNull final BlockPos start = AbstractPathJob.prepareStart(entity);
 
         return setPathJob(
-          new PathJobMoveAwayFromLocation(entity.worldObj, start, avoid, (int) range, (int) getPathSearchRange()),
+          new PathJobMoveAwayFromLocation(entity.world, start, avoid, (int) range, (int) getPathSearchRange()),
           null, speed);
     }
 }

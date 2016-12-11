@@ -13,8 +13,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Class handling the buildTool item.
+ */
 public class ItemBuildTool extends AbstractItemMinecolonies
 {
+    /**
+     * Instantiates the buildTool on load.
+     */
     public ItemBuildTool()
     {
         super("scepterGold");
@@ -26,7 +32,6 @@ public class ItemBuildTool extends AbstractItemMinecolonies
     @NotNull
     @Override
     public EnumActionResult onItemUse(
-                                       final ItemStack stack,
                                        final EntityPlayer playerIn,
                                        final World worldIn,
                                        final BlockPos pos,
@@ -47,13 +52,15 @@ public class ItemBuildTool extends AbstractItemMinecolonies
 
     @NotNull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(@NotNull final ItemStack itemStackIn, final World worldIn, final EntityPlayer playerIn, final EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(final World worldIn, final EntityPlayer playerIn, final EnumHand hand)
     {
+        ItemStack stack = playerIn.getHeldItem(hand);
+
         if (worldIn.isRemote)
         {
             MineColonies.proxy.openBuildToolWindow(null);
         }
 
-        return new ActionResult<>(EnumActionResult.SUCCESS, itemStackIn);
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 }

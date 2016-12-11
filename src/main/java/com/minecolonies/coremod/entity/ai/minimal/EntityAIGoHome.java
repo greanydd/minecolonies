@@ -59,7 +59,7 @@ public class EntityAIGoHome extends EntityAIBase
     @Override
     public boolean continueExecuting()
     {
-        return !citizen.getNavigator().noPath();
+        return !citizen.getNavigator().noPath() && citizen.getDesiredActivity() == EntityCitizen.DesiredActivity.SLEEP;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class EntityAIGoHome extends EntityAIBase
 
         if (chance <= 1 && citizen.getWorkBuilding() != null && citizen.getColonyJob() != null)
         {
-            SoundUtils.playSoundAtCitizenWithChance(citizen.worldObj, citizen.getPosition(), citizen.getColonyJob().getBedTimeSound(), 1);
+            SoundUtils.playSoundAtCitizenWithChance(citizen.world, citizen.getPosition(), citizen.getColonyJob().getBedTimeSound(), 1);
             //add further workers as soon as available.
         }
     }

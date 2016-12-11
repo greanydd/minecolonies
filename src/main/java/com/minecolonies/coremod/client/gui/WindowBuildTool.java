@@ -58,54 +58,54 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     private static final String BUTTON_CONFIRM = "confirm";
 
     /**
-     * This button will remove the currently rendered schematic.
+     * This button will remove the currently rendered structure.
      */
     private static final String BUTTON_CANCEL = "cancel";
 
     /**
-     * This button will rotate the schematic counterclockwise.
+     * This button will rotate the structure counterclockwise.
      */
     private static final String BUTTON_ROTATE_LEFT = "rotateLeft";
 
     /**
-     * This button will rotated the schematic clockwise.
+     * This button will rotated the structure clockwise.
      */
     private static final String BUTTON_ROTATE_RIGHT = "rotateRight";
 
     /**
-     * Move the schematic preview up.
+     * Move the structure preview up.
      */
     private static final String BUTTON_UP = "up";
 
     /**
-     * Move the schematic preview down.
+     * Move the structure preview down.
      */
     private static final String BUTTON_DOWN = "down";
 
     /**
-     * Move the schematic preview forward.
+     * Move the structure preview forward.
      */
     private static final String BUTTON_FORWARD = "forward";
 
     /**
-     * Move the schematic preview back.
+     * Move the structure preview back.
      */
     private static final String BUTTON_BACK = "back";
 
     /**
-     * Move the schematic preview left.
+     * Move the structure preview left.
      */
     private static final String BUTTON_LEFT = "left";
 
     /**
-     * Move the schematic preview right.
+     * Move the structure preview right.
      */
     private static final String BUTTON_RIGHT = "right";
 
     /**
      * Resource suffix.
      */
-    private static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowBuildTool.xml";
+    private static final String BUILD_TOOL_RESOURCE_SUFFIX = ":gui/windowbuilldtool.xml";
 
     /**
      * Hut prefix.
@@ -173,7 +173,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     /**
      * Creates a window build tool.
      * This requires X, Y and Z coordinates.
-     * If a schematic is active, recalculates the X Y Z with offset.
+     * If a structure is active, recalculates the X Y Z with offset.
      * Otherwise the given parameters are used.
      *
      * @param pos coordinate.
@@ -234,7 +234,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Move the schematic down.
+     * Move the structure down.
      */
     private static void moveDownClicked()
     {
@@ -260,7 +260,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
 
     /**
      * Called when the window is closed.
-     * If there is a current schematic, its information is stored in {@link Settings}.
+     * If there is a current structure, its information is stored in {@link Settings}.
      */
     @Override
     public void onClosed()
@@ -294,9 +294,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         findPaneOfTypeByID(BUTTON_TYPE_ID, Button.class).setLabel(LanguageHandler.getString("com.minecolonies.coremod.gui.buildtool.hut"));
 
-        final InventoryPlayer inventory = this.mc.thePlayer.inventory;
+        final InventoryPlayer inventory = this.mc.player.inventory;
 
-        //Add possible hutDec (has item) to list, if it has a schematic, and player has the block
+        //Add possible hutDec (has item) to list, if it has a structure, and player has the block
         hutDec.addAll(Structures.getHuts().stream()
                         .filter(hut -> inventoryHasHut(inventory, hut) && Structures.getStylesForHut(hut) != null)
                         .collect(Collectors.toList()));
@@ -420,7 +420,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Changes the current schematic.
+     * Changes the current structure.
      * Set to button position at that time
      */
     private void changeSchematic()
@@ -502,7 +502,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Send a packet telling the server to place the current schematic.
+     * Send a packet telling the server to place the current structure.
      */
     private void confirmClicked()
     {
@@ -517,7 +517,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
         }
         else
         {
-            LanguageHandler.sendPlayerLocalizedMessage(this.mc.thePlayer, WindowBuildTool.NO_HUT_IN_INVENTORY);
+            LanguageHandler.sendPlayerLocalizedMessage(this.mc.player, WindowBuildTool.NO_HUT_IN_INVENTORY);
         }
 
         Settings.instance.reset();
@@ -525,7 +525,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Cancel the current schematic.
+     * Cancel the current structure.
      */
     private void cancelClicked()
     {
@@ -534,39 +534,39 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Move the schematic left.
+     * Move the structure left.
      */
     private void moveLeftClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.thePlayer.getHorizontalFacing().rotateYCCW()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateYCCW()));
     }
 
     /**
-     * Move the schematic right.
+     * Move the structure right.
      */
     private void moveRightClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.thePlayer.getHorizontalFacing().rotateY()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().rotateY()));
     }
 
     /**
-     * Move the schematic forward.
+     * Move the structure forward.
      */
     private void moveForwardClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.thePlayer.getHorizontalFacing()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing()));
     }
 
     /**
-     * Move the schematic back.
+     * Move the structure back.
      */
     private void moveBackClicked()
     {
-        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.thePlayer.getHorizontalFacing().getOpposite()));
+        Settings.instance.moveTo(new BlockPos(0, 0, 0).offset(this.mc.player.getHorizontalFacing().getOpposite()));
     }
 
     /**
-     * Rotate the schematic clockwise.
+     * Rotate the structure clockwise.
      */
     private void rotateRightClicked()
     {
@@ -605,7 +605,7 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Rotate the schematic counter clockwise.
+     * Rotate the structure counter clockwise.
      */
     private void rotateLeftClicked()
     {

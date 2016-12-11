@@ -46,30 +46,30 @@ public final class ColonyManager
     /**
      * The tag of the colonies.
      */
-    private static final String TAG_COLONIES = "colonies";
+    private static final String                     TAG_COLONIES          = "colonies";
     /**
      * The damage source used to kill citizens.
      */
-    private static final DamageSource CONSOLE_DAMAGE_SOURCE = new DamageSource("Console");
+    private static final DamageSource               CONSOLE_DAMAGE_SOURCE = new DamageSource("Console");
     /**
      * The list of all colonies.
      */
     @NotNull
-    private static Map<Integer, Colony> colonies = new HashMap<>();
+    private static final Map<Integer, Colony>       colonies              = new HashMap<>();
     /**
      * The list of all colonies by world.
      */
     @NotNull
-    private static Map<Integer, List<Colony>> coloniesByWorld = new HashMap<>();
+    private static final Map<Integer, List<Colony>> coloniesByWorld       = new HashMap<>();
     /**
      * The last colony id.
      */
-    private static int topColonyId = 0;
+    private static       int                        topColonyId           = 0;
     /**
      * The list of colony views.
      */
     @NotNull
-    private static Map<Integer, ColonyView> colonyViews = new HashMap<>();
+    private static final Map<Integer, ColonyView>   colonyViews           = new HashMap<>();
     /**
      * Amount of worlds loaded.
      */
@@ -159,7 +159,6 @@ public final class ColonyManager
                 building.destroy();
                 for (final World world : colonyWorlds)
                 {
-                    Log.getLogger().info("Try out World " + world.getProviderName());
                     if (world.getBlockState(location).getBlock() instanceof AbstractBlockHut)
                     {
                         Log.getLogger().info("Found Block, deleting " + world.getBlockState(location).getBlock());
@@ -595,7 +594,7 @@ public final class ColonyManager
      */
     public static void onClientTick(@NotNull final TickEvent.ClientTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().theWorld == null && !colonyViews.isEmpty())
+        if (event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().world == null && !colonyViews.isEmpty())
         {
             //  Player has left the game, clear the Colony View cache
             colonyViews.clear();

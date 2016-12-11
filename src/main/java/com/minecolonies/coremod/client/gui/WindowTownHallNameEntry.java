@@ -15,9 +15,9 @@ public class WindowTownHallNameEntry extends Window implements Button.Handler
     private static final String BUTTON_DONE                   = "done";
     private static final String BUTTON_CANCEL                 = "cancel";
     private static final String INPUT_NAME                    = "name";
-    private static final String TOWNHALL_NAME_RESOURCE_SUFFIX = ":gui/windowTownHallNameEntry.xml";
+    private static final String TOWNHALL_NAME_RESOURCE_SUFFIX = ":gui/windowtownhallnameentry.xml";
 
-    private ColonyView colony;
+    private final ColonyView colony;
 
     /**
      * Constructor for a town hall rename entry window.

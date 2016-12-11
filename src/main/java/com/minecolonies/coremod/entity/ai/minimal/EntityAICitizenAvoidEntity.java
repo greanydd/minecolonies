@@ -21,13 +21,13 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
     /**
      * The entity we are attached to.
      */
-    private EntityCitizen           theEntity;
-    private double                  farSpeed;
-    private double                  nearSpeed;
+    private final EntityCitizen           theEntity;
+    private final double                  farSpeed;
+    private final double                  nearSpeed;
     @Nullable
-    private Entity                  closestLivingEntity;
-    private float                   distanceFromEntity;
-    private Class<? extends Entity> targetEntityClass;
+    private       Entity                  closestLivingEntity;
+    private final float                   distanceFromEntity;
+    private final Class<? extends Entity> targetEntityClass;
 
     /**
      * Constructor.
@@ -70,11 +70,11 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
     {
         if (targetEntityClass == EntityPlayer.class)
         {
-            return theEntity.worldObj.getClosestPlayerToEntity(theEntity, (double) distanceFromEntity);
+            return theEntity.world.getClosestPlayerToEntity(theEntity, (double) distanceFromEntity);
         }
         else
         {
-            final Optional<Entity> entityOptional = theEntity.worldObj.getEntitiesInAABBexcluding(
+            final Optional<Entity> entityOptional = theEntity.world.getEntitiesInAABBexcluding(
               theEntity,
               theEntity.getEntityBoundingBox().expand(
                 (double) distanceFromEntity,

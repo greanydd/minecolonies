@@ -38,7 +38,7 @@ public class InventoryUtils
         for (int slot = 0; slot < inventory.getSizeInventory(); slot++)
         {
             final ItemStack stack = inventory.getStackInSlot(slot);
-            if (stack != null)
+            if (stack != null && stack != ItemStack.EMPTY)
             {
                 filtered.add(inventory.getStackInSlot(slot));
             }
@@ -166,7 +166,7 @@ public class InventoryUtils
         int count = 0;
         for (@NotNull final ItemStack is : filterInventory(inventory, targetitem))
         {
-            count += is.stackSize;
+            count += is.getCount();
         }
         return count;
     }
@@ -222,7 +222,7 @@ public class InventoryUtils
     {
         for (int slot = 0; slot < inventory.getSizeInventory(); slot++)
         {
-            if (inventory.getStackInSlot(slot) == null)
+            if (inventory.getStackInSlot(slot) == ItemStack.EMPTY)
             {
                 return slot;
             }
@@ -243,7 +243,7 @@ public class InventoryUtils
      */
     public static boolean takeStackInSlot(final IInventory sendingInv, final IInventory receivingInv, final int slotID)
     {
-        return takeStackInSlot(sendingInv, receivingInv, slotID, 1, true);
+        return takeStackInSlot(sendingInv, receivingInv, slotID, sendingInv.getStackInSlot(slotID).getCount(), true);
     }
 
     /**
@@ -268,21 +268,21 @@ public class InventoryUtils
             // gets itemstack in slot, and decreases stacksize
             @Nullable ItemStack stack = sendingInv.decrStackSize(slotID, amount);
             // stack is null if no itemstack was in slot
-            if (stack != null)
+            if (stack != null && stack != ItemStack.EMPTY)
             {
                 // puts stack in receiving inventory
                 stack = setStack(receivingInv, stack);
                 // checks for leftovers
-                if (stack == null)
+                if (stack == null && stack != ItemStack.EMPTY)
                 {
                     if (takeAll)
                     {
                         // gets itemstack in slot
                         stack = sendingInv.getStackInSlot(slotID);
                         // checks if itemstack is still in slot
-                        if (stack != null)
+                        if (stack != null && stack != ItemStack.EMPTY)
                         {
-                            stack = sendingInv.decrStackSize(slotID, stack.stackSize);
+                            stack = sendingInv.decrStackSize(slotID, stack.getCount());
                             stack = setStack(receivingInv, stack);
                             setStack(sendingInv, stack);
                         }
@@ -308,41 +308,41 @@ public class InventoryUtils
     @Nullable
     public static ItemStack setStack(@NotNull final IInventory inventory, @Nullable final ItemStack stack)
     {
-        if (stack != null)
+        if (stack != null && stack != ItemStack.EMPTY)
         {
             @Nullable ItemStack returnStack = stack.copy();
             int slot;
-            while ((slot = containsPartialStack(inventory, stack)) != -1 && returnStack != null)
+            while ((slot = containsPartialStack(inventory, stack)) != -1 && returnStack != null && returnStack != ItemStack.EMPTY)
             {
                 final ItemStack current = inventory.getStackInSlot(slot);
-                final int spaceLeft = current.getMaxStackSize() - current.stackSize;
+                final int spaceLeft = current.getMaxStackSize() - current.getCount();
                 if (spaceLeft > 0)
                 {
-                    @NotNull final ItemStack toBeAdded = returnStack.splitStack(Math.min(returnStack.stackSize, spaceLeft));
-                    if (returnStack.stackSize == 0)
+                    @NotNull final ItemStack toBeAdded = returnStack.splitStack(Math.min(returnStack.getCount(), spaceLeft));
+                    if (returnStack.getCount() == 0)
                     {
-                        returnStack = null;
+                        returnStack = ItemStack.EMPTY;
                     }
-                    current.stackSize += toBeAdded.stackSize;
+                    current.setCount(current.getCount() + toBeAdded.getCount());
                     inventory.setInventorySlotContents(slot, current);
                 }
             }
 
-            while ((slot = getOpenSlot(inventory)) != -1 && returnStack != null)
+            while ((slot = getOpenSlot(inventory)) != -1 && returnStack != null && returnStack != ItemStack.EMPTY)
             {
                 inventory.setInventorySlotContents(slot, returnStack);
-                if (returnStack.stackSize > inventory.getInventoryStackLimit())
+                if (returnStack.getCount() > inventory.getInventoryStackLimit())
                 {
-                    returnStack.stackSize -= inventory.getInventoryStackLimit();
+                    returnStack.setCount(returnStack.getCount() - inventory.getInventoryStackLimit());
                 }
                 else
                 {
-                    returnStack = null;
+                    returnStack = ItemStack.EMPTY;
                 }
             }
             return returnStack;
         }
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -357,7 +357,7 @@ public class InventoryUtils
         for (int i = 0; i < inventory.getSizeInventory(); i++)
         {
             final ItemStack testStack = inventory.getStackInSlot(i);
-            if (testStack != null && testStack.isItemEqual(stack) && testStack.stackSize != testStack.getMaxStackSize())
+            if (testStack != null && testStack != ItemStack.EMPTY && testStack.isItemEqual(stack) && testStack.getCount() != testStack.getMaxStackSize())
             {
                 return i;
             }
@@ -413,7 +413,7 @@ public class InventoryUtils
         {
             final ItemStack is = inventory.getStackInSlot(i);
 
-            if (is != null)
+            if (is != null && is != ItemStack.EMPTY)
             {
                 count++;
             }
@@ -430,7 +430,7 @@ public class InventoryUtils
     {
         for (int slot = 0; slot < inventory.getSizeInventory(); slot++)
         {
-            inventory.setInventorySlotContents(slot, null);
+            inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
         }
     }
 
@@ -465,7 +465,7 @@ public class InventoryUtils
      */
     public static boolean addItemStackToInventory(@NotNull final IInventory inventory, @Nullable final ItemStack itemStack)
     {
-        if (itemStack != null && itemStack.stackSize != 0 && itemStack.getItem() != null)
+        if (itemStack != null && itemStack.getCount() != 0 && itemStack.getItem() != null)
         {
             int stackSize;
 
@@ -475,11 +475,11 @@ public class InventoryUtils
 
                 if (stackSize >= 0)
                 {
-                    final ItemStack copy = ItemStack.copyItemStack(itemStack);
-                    copy.animationsToGo = 5;
+                    final ItemStack copy = itemStack.copy();
+                    copy.setAnimationsToGo(5);
                     inventory.setInventorySlotContents(stackSize, copy);
 
-                    itemStack.stackSize = 0;
+                    itemStack.setCount(0);
                     return true;
                 }
                 else
@@ -491,13 +491,13 @@ public class InventoryUtils
             {
                 do
                 {
-                    stackSize = itemStack.stackSize;
-                    itemStack.stackSize = storePartialItemStack(inventory, itemStack);
+                    stackSize = itemStack.getCount();
+                    itemStack.setCount(storePartialItemStack(inventory, itemStack));
                 }
-                while (itemStack.stackSize > 0 && itemStack.stackSize < stackSize);
+                while (itemStack.getCount() > 0 && itemStack.getCount() < stackSize);
 
 
-                return itemStack.stackSize < stackSize;
+                return itemStack.getCount() < stackSize;
             }
         }
         else
@@ -519,7 +519,7 @@ public class InventoryUtils
     private static int storePartialItemStack(@NotNull final IInventory inventory, @NotNull final ItemStack itemStack)
     {
         final Item item = itemStack.getItem();
-        int stackSize = itemStack.stackSize;
+        int stackSize = itemStack.getCount();
         int slot;
 
         if (itemStack.getMaxStackSize() == 1)
@@ -532,9 +532,9 @@ public class InventoryUtils
             }
             else
             {
-                if (inventory.getStackInSlot(slot) == null)
+                if (inventory.getStackInSlot(slot) == null && inventory.getStackInSlot(slot) != ItemStack.EMPTY)
                 {
-                    inventory.setInventorySlotContents(slot, ItemStack.copyItemStack(itemStack));
+                    inventory.setInventorySlotContents(slot, itemStack.copy());
                 }
 
                 return 0;
@@ -556,7 +556,7 @@ public class InventoryUtils
             else
             {
                 ItemStack stack = inventory.getStackInSlot(slot);
-                if (stack == null)
+                if (stack == null || stack == ItemStack.EMPTY)
                 {
                     stack = new ItemStack(item, 0, itemStack.getItemDamage());
 
@@ -568,14 +568,14 @@ public class InventoryUtils
 
                 int inventoryStackSpace = stackSize;
 
-                if (stackSize > stack.getMaxStackSize() - stack.stackSize)
+                if (stackSize > stack.getMaxStackSize() - stack.getCount())
                 {
-                    inventoryStackSpace = stack.getMaxStackSize() - stack.stackSize;
+                    inventoryStackSpace = stack.getMaxStackSize() - stack.getCount();
                 }
 
-                if (inventoryStackSpace > inventory.getInventoryStackLimit() - stack.stackSize)
+                if (inventoryStackSpace > inventory.getInventoryStackLimit() - stack.getCount())
                 {
-                    inventoryStackSpace = inventory.getInventoryStackLimit() - stack.stackSize;
+                    inventoryStackSpace = inventory.getInventoryStackLimit() - stack.getCount();
                 }
 
                 if (inventoryStackSpace == 0)
@@ -585,8 +585,8 @@ public class InventoryUtils
                 else
                 {
                     stackSize -= inventoryStackSpace;
-                    stack.stackSize += inventoryStackSpace;
-                    stack.animationsToGo = 5;
+                    stack.setCount(stack.getCount() + inventoryStackSpace);
+                    stack.setAnimationsToGo(5);
                     inventory.setInventorySlotContents(slot, stack);
                     return stackSize;
                 }
@@ -611,8 +611,8 @@ public class InventoryUtils
             if (inventoryItem != null
                   && inventoryItem.getItem() == itemStack.getItem()
                   && inventoryItem.isStackable()
-                  && inventoryItem.stackSize < inventoryItem.getMaxStackSize()
-                  && inventoryItem.stackSize < inventory.getInventoryStackLimit()
+                  && inventoryItem.getCount() < inventoryItem.getMaxStackSize()
+                  && inventoryItem.getCount() < inventory.getInventoryStackLimit()
                   && (!inventoryItem.getHasSubtypes() || inventoryItem.getItemDamage() == itemStack.getItemDamage())
                   && ItemStack.areItemStackTagsEqual(inventoryItem, itemStack))
             {

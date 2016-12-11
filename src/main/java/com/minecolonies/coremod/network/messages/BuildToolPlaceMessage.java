@@ -111,7 +111,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
     @Override
     public void messageOnServerThread(final BuildToolPlaceMessage message, final EntityPlayerMP player)
     {
-        final World world = player.worldObj;
+        final World world = player.world;
         if (message.isHut)
         {
             handleHut(world, player, message.hutDec, message.style, message.rotation, message.pos);
@@ -129,7 +129,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
      * @param player   Who placed the hut.
      * @param hut      The hut we are placing.
      * @param style    The style of the hut.
-     * @param rotation The number of times the schematic should be rotated.
+     * @param rotation The number of times the structure should be rotated.
      * @param buildPos The location the hut is being placed.
      */
     private static void handleHut(

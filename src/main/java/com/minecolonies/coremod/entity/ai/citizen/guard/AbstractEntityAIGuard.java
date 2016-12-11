@@ -208,12 +208,12 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
 
                 if (stack.getItem() instanceof ItemArmor && worker.getItemStackFromSlot(((ItemArmor) stack.getItem()).armorType) == null)
                 {
-                    final int emptySlot = worker.getInventoryCitizen().getFirstEmptySlot();
+                    final int emptySlot = worker.getInventoryCitizen().getFirstEmptyStack();
 
                     if (emptySlot != -1)
                     {
                         worker.getInventoryCitizen().setInventorySlotContents(emptySlot, stack);
-                        chest.setInventorySlotContents(i, null);
+                        chest.setInventorySlotContents(i, ItemStack.EMPTY);
                     }
                 }
                 dumpAfterActions = DUMP_BASE * workBuilding.getBuildingLevel();
@@ -245,22 +245,22 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
      */
     protected void updateArmor()
     {
-        worker.setItemStackToSlot(EntityEquipmentSlot.CHEST, null);
-        worker.setItemStackToSlot(EntityEquipmentSlot.FEET, null);
-        worker.setItemStackToSlot(EntityEquipmentSlot.HEAD, null);
-        worker.setItemStackToSlot(EntityEquipmentSlot.LEGS, null);
+        worker.setItemStackToSlot(EntityEquipmentSlot.CHEST, ItemStack.EMPTY);
+        worker.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
+        worker.setItemStackToSlot(EntityEquipmentSlot.HEAD, ItemStack.EMPTY);
+        worker.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
 
         for (int i = 0; i < worker.getInventoryCitizen().getSizeInventory(); i++)
         {
             final ItemStack stack = worker.getInventoryCitizen().getStackInSlot(i);
 
-            if (stack == null || stack.stackSize == 0)
+            if (stack == null || stack.getCount() == 0 )
             {
-                worker.getInventoryCitizen().setInventorySlotContents(i, null);
+                worker.getInventoryCitizen().setInventorySlotContents(i, ItemStack.EMPTY);
                 continue;
             }
 
-            if (stack.getItem() instanceof ItemArmor && worker.getItemStackFromSlot(((ItemArmor) stack.getItem()).armorType) == null)
+            if (stack.getItem() instanceof ItemArmor && worker.getItemStackFromSlot(((ItemArmor) stack.getItem()).armorType) == ItemStack.EMPTY)
             {
                 worker.setItemStackToSlot(((ItemArmor) stack.getItem()).armorType, stack);
             }
@@ -338,9 +338,9 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
      */
     protected AIState searchTarget()
     {
-        entityList = this.worker.worldObj.getEntitiesWithinAABB(EntityMob.class, this.getTargetableArea(currentSearchDistance));
-        entityList.addAll(this.worker.worldObj.getEntitiesWithinAABB(EntitySlime.class, this.getTargetableArea(currentSearchDistance)));
-        entityList.addAll(this.worker.worldObj.getEntitiesWithinAABB(EntityPlayer.class, this.getTargetableArea(currentSearchDistance)));
+        entityList = this.worker.world.getEntitiesWithinAABB(EntityMob.class, this.getTargetableArea(currentSearchDistance));
+        entityList.addAll(this.worker.world.getEntitiesWithinAABB(EntitySlime.class, this.getTargetableArea(currentSearchDistance)));
+        entityList.addAll(this.worker.world.getEntitiesWithinAABB(EntityPlayer.class, this.getTargetableArea(currentSearchDistance)));
 
         if (targetEntity != null && targetEntity.isEntityAlive() && worker.getEntitySenses().canSee(targetEntity))
         {

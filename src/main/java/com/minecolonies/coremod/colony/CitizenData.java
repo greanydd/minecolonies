@@ -52,7 +52,7 @@ public class CitizenData
     private       String                 name;
     private       boolean                female;
     private       int                    textureId;
-    private       Colony                 colony;
+    private final Colony                 colony;
     @Nullable
     private       BuildingHome           homeBuilding;
     @Nullable
@@ -216,7 +216,7 @@ public class CitizenData
         female = rand.nextBoolean();
         name = generateName(rand);
 
-        textureId = entity.worldObj.rand.nextInt(Integer.MAX_VALUE);
+        textureId = entity.world.rand.nextInt(Integer.MAX_VALUE);
         health = entity.getHealth();
         maxHealth = entity.getMaxHealth();
         experience = 0;
@@ -620,6 +620,15 @@ public class CitizenData
     public void setLevel(final int lvl)
     {
         this.level = lvl;
+    }
+
+    /**
+     * Resets the experience and the experience level of the citizen.
+     */
+    public void resetExperienceAndLevel()
+    {
+        this.level = 0;
+        this.experience = 0;
     }
 
     /**

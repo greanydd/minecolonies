@@ -42,9 +42,9 @@ public abstract class AbstractJob
 
     //  Job and View Class Mapping.
     @NotNull
-    private static Map<String, Class<? extends AbstractJob>> nameToClassMap = new HashMap<>();
+    private static final Map<String, Class<? extends AbstractJob>> nameToClassMap = new HashMap<>();
     @NotNull
-    private static Map<Class<? extends AbstractJob>, String> classToNameMap = new HashMap<>();
+    private static final Map<Class<? extends AbstractJob>, String> classToNameMap = new HashMap<>();
     static
     {
         addMapping(MAPPING_PLACEHOLDER, JobPlaceholder.class);
@@ -59,8 +59,8 @@ public abstract class AbstractJob
 
     private final CitizenData citizen;
     @NotNull
-    private List<ItemStack> itemsNeeded = new ArrayList<>();
-    private String          nameTag     = "";
+    private final List<ItemStack> itemsNeeded = new ArrayList<>();
+    private       String          nameTag     = "";
 
     /**
      * Initialize citizen data.
@@ -158,7 +158,7 @@ public abstract class AbstractJob
         for (int i = 0; i < itemsNeededTag.tagCount(); i++)
         {
             final NBTTagCompound itemCompound = itemsNeededTag.getCompoundTagAt(i);
-            itemsNeeded.add(ItemStack.loadItemStackFromNBT(itemCompound));
+            itemsNeeded.add(new ItemStack(itemCompound));
         }
     }
 
@@ -269,7 +269,7 @@ public abstract class AbstractJob
         {
             if ((stack.getItem().isDamageable() && stack.getItem() == neededItem.getItem()) || stack.isItemEqual(neededItem))
             {
-                neededItem.stackSize += stack.stackSize;
+                neededItem.setCount(neededItem.getCount() + stack.getCount());
                 return;
             }
         }
@@ -292,11 +292,12 @@ public abstract class AbstractJob
         {
             if ((stack.getItem().isDamageable() && stack.getItem() == neededItem.getItem()) || stack.isItemEqual(neededItem))
             {
-                final int itemsToRemove = Math.min(neededItem.stackSize, stackCopy.stackSize);
-                neededItem.stackSize -= itemsToRemove;
-                stackCopy.stackSize -= itemsToRemove;
+                //todo make this sofisticated as soon as material handling has been implemented.
+                //final int itemsToRemove = Math.min(neededItem.getCount(), stackCopy.getCount());
+                //neededItem.setCount(stackCopy.getCount() - itemsToRemove);
+                //stackCopy.setCount(stackCopy.getCount() - itemsToRemove);
 
-                if (neededItem.stackSize == 0)
+                if (neededItem.getCount() <= stackCopy.getCount())
                 {
                     itemsNeeded.remove(neededItem);
                 }
@@ -305,7 +306,7 @@ public abstract class AbstractJob
             }
         }
 
-        return stackCopy.stackSize == 0 ? null : stackCopy;
+        return stackCopy.getCount() == 0 ? ItemStack.EMPTY : stackCopy;
     }
 
     /**
