@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.permissions;
 
+import com.minecolonies.blockout.Log;
 import com.minecolonies.coremod.blocks.AbstractBlockHut;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.permissions.Permissions;
@@ -374,13 +375,17 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final AttackEntityEvent event)
     {
+        Log.getLogger().info("Inside attack event");
+
         final EntityPlayer playerIn = event.getEntityPlayer();
         if (Configurations.enableColonyProtection && colony.isCoordInColony(playerIn.getEntityWorld(), playerIn.getPosition()))
         {
-            final Permissions.Rank rank = colony.getPermissions().getRank(playerIn);
+            Log.getLogger().info("Inside attack event inside colony");
 
+            final Permissions.Rank rank = colony.getPermissions().getRank(playerIn);
             if (rank.ordinal() > Permissions.Rank.FRIEND.ordinal())
             {
+                Log.getLogger().info("Canceling attack event.");
                 cancelEvent(event);
             }
         }
