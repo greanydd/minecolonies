@@ -32,6 +32,7 @@ public abstract class AbstractJob
     private static final String MAPPING_MINER       = "Miner";
     private static final String MAPPING_LUMBERJACK  = "Lumberjack";
     private static final String MAPPING_FARMER      = "Farmer";
+    private static final String MAPPING_SHEPHERD    = "Shepherd";
     private static final String MAPPING_FISHERMAN   = "Fisherman";
     private static final String MAPPING_TOWER_GUARD = "GuardTower";
 
@@ -53,6 +54,7 @@ public abstract class AbstractJob
         addMapping(MAPPING_MINER, JobMiner.class);
         addMapping(MAPPING_LUMBERJACK, JobLumberjack.class);
         addMapping(MAPPING_FARMER, JobFarmer.class);
+        addMapping(MAPPING_SHEPHERD, JobShepherd.class);
         addMapping(MAPPING_FISHERMAN, JobFisherman.class);
         addMapping(MAPPING_TOWER_GUARD, JobGuard.class);
     }

@@ -13,7 +13,7 @@ import com.minecolonies.coremod.entity.ai.citizen.farmer.Field;
 import com.minecolonies.coremod.entity.ai.citizen.farmer.FieldView;
 import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.coremod.network.messages.AssignFieldMessage;
-import com.minecolonies.coremod.network.messages.AssignmentModeMessage;
+import com.minecolonies.coremod.network.messages.AssignmentModeFieldMessage;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.coremod.util.LanguageHandler;
 import com.minecolonies.coremod.util.Utils;
@@ -616,7 +616,7 @@ public class BuildingFarmer extends AbstractBuildingWorker
          */
         public void setAssignFieldManually(final boolean assignFieldManually)
         {
-            MineColonies.getNetwork().sendToServer(new AssignmentModeMessage(this, assignFieldManually));
+            MineColonies.getNetwork().sendToServer(new AssignmentModeFieldMessage(this, assignFieldManually));
             this.assignFieldManually = assignFieldManually;
         }
 

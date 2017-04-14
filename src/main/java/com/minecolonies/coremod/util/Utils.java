@@ -4,6 +4,7 @@ import com.minecolonies.compatibility.Compatibility;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
@@ -26,6 +27,7 @@ public final class Utils
     public static final String AXE     = "axe";
     public static final String HOE     = "hoe";
     public static final String WEAPON  = "weapon";
+    public static final String SHEARS  = "shears";
 
     /**
      * The compound id for fortune enchantment.
@@ -355,6 +357,17 @@ public final class Utils
     {
         return isTool(itemStack, HOE);
     }
+    
+    /**
+     * Checks if this ItemStack can be used as a Shears.
+     *
+     * @param itemStack Item to check.
+     * @return True if item is shears, otherwise false.
+     */
+    public static boolean isShears(@Nullable final ItemStack itemStack)
+    {
+        return isTool(itemStack, SHEARS);
+    }
 
     /**
      * Checks if this ItemStack can be used as a Tool of type.
@@ -365,7 +378,9 @@ public final class Utils
      */
     public static boolean isTool(@Nullable final ItemStack itemStack, final String toolType)
     {
-        return getMiningLevel(itemStack, toolType) >= 0 || (itemStack != null && itemStack.getItem() instanceof ItemHoe && "hoe".equals(toolType));
+        return getMiningLevel(itemStack, toolType) >= 0 || 
+            (itemStack != null && itemStack.getItem() instanceof ItemHoe && HOE.equals(toolType)) ||
+            (itemStack != null && itemStack.getItem() instanceof ItemShears && SHEARS.equals(toolType));
     }
 
     /**

@@ -1,0 +1,27 @@
+{
+  "parent": "builtin/generated",
+  "textures": {
+    "layer0": "minecolonies:items/blockhutshepherd"
+  },
+  "variants": {
+    "facing=up": {
+      "model": "minecolonies:blockHutShepherd"
+    },
+    "facing=east": {
+      "model": "minecolonies:blockHutShepherd",
+      "y": 0
+    },
+    "facing=south": {
+      "model": "minecolonies:blockHutShepherd",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "minecolonies:blockHutShepherd",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "minecolonies:blockHutShepherd",
+      "y": 270
+    }
+  }
+}

@@ -12,6 +12,7 @@ import com.minecolonies.coremod.configuration.Configurations;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.citizen.builder.ConstructionTapeHelper;
 import com.minecolonies.coremod.entity.ai.citizen.farmer.Field;
+import com.minecolonies.coremod.entity.ai.citizen.shepherd.Paddock;
 import com.minecolonies.coremod.network.messages.*;
 import com.minecolonies.coremod.permissions.ColonyPermissionEventHandler;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
@@ -98,6 +99,7 @@ public class Colony implements IColony
 
     //private int autoHostile = 0;//Off
     private static final String TAG_FIELDS                  = "fields";
+    // :TODO: rbenning : TAG_PADDOCKS?
     private static final int    CHECK_WAYPOINT_EVERY              = 100;
     private static final double MAX_SQ_DIST_SUBSCRIBER_UPDATE     = MathUtils.square(Configurations.workingRangeTownHall + 16D);
     private static final double MAX_SQ_DIST_OLD_SUBSCRIBER_UPDATE = MathUtils.square(Configurations.workingRangeTownHall * 2D);
@@ -106,6 +108,7 @@ public class Colony implements IColony
     private final int dimensionId;
     //  Buildings
     private final Map<BlockPos, Field>       fields    = new HashMap<>();
+    private final Map<BlockPos, Paddock>     paddocks  = new HashMap<>();
     //Additional Waypoints.
     private final Map<BlockPos, IBlockState> wayPoints = new HashMap<>();
 
@@ -1365,6 +1368,50 @@ public class Colony implements IColony
                 field.setOwner(owner);
                 markFieldsDirty();
                 return field;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Getter of a unmodifiable version of the farmerPaddocks map.
+     *
+     * @return map of paddocks and their id.
+     */
+    @NotNull
+    public Map<BlockPos, Paddock> getPaddocks()
+    {
+        return Collections.unmodifiableMap(paddocks);
+    }
+
+    /**
+     * Get paddock in Colony by ID.
+     *
+     * @param fieldId ID (coordinates) of the paddock to get.
+     * @return paddock belonging to the given ID.
+     */
+    public Paddock getPaddock(final BlockPos fieldId)
+    {
+        return paddocks.get(fieldId);
+    }
+
+    /**
+     * Returns a paddock which has not been taken yet.
+     * 
+     * @param owner name of the owner of the paddock.
+     * @return a paddock if there is one available, else null.
+     */
+    @Nullable
+    public Paddock getFreePaddock(final String owner)
+    {
+        for (@NotNull final Paddock paddock : paddocks.values())
+        {
+            if (!paddock.isTaken())
+            {
+                paddock.setTaken(true);
+                paddock.setOwner(owner);
+                markFieldsDirty();
+                return paddock;
             }
         }
         return null;

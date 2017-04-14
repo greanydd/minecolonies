@@ -1,21 +1,23 @@
 package com.minecolonies.coremod.network.messages;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.ColonyManager;
 import com.minecolonies.coremod.colony.buildings.BuildingFarmer;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.util.BlockPosUtil;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to change the assignmentMode of the fields of the farmer.
  */
-public class AssignmentModeMessage extends AbstractMessage<AssignmentModeMessage, IMessage>
+public class AssignmentModeFieldMessage extends AbstractMessage<AssignmentModeFieldMessage, IMessage>
 {
 
     private int      colonyId;
@@ -25,7 +27,7 @@ public class AssignmentModeMessage extends AbstractMessage<AssignmentModeMessage
     /**
      * Empty standard constructor.
      */
-    public AssignmentModeMessage()
+    public AssignmentModeFieldMessage()
     {
         super();
     }
@@ -36,14 +38,14 @@ public class AssignmentModeMessage extends AbstractMessage<AssignmentModeMessage
      * @param building       View of the building to read data from.
      * @param assignmentMode assignmentMode of the particular farmer.
      */
-    public AssignmentModeMessage(@NotNull final BuildingFarmer.View building, final boolean assignmentMode)
+    public AssignmentModeFieldMessage(@NotNull final BuildingFarmer.View building, final boolean assignmentMode)
     {
         super();
         this.colonyId = building.getColony().getID();
         this.buildingId = building.getID();
         this.assignmentMode = assignmentMode;
     }
-
+    
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
@@ -61,7 +63,7 @@ public class AssignmentModeMessage extends AbstractMessage<AssignmentModeMessage
     }
 
     @Override
-    public void messageOnServerThread(final AssignmentModeMessage message, final EntityPlayerMP player)
+    public void messageOnServerThread(final AssignmentModeFieldMessage message, final EntityPlayerMP player)
     {
         final Colony colony = ColonyManager.getColony(message.colonyId);
         if (colony != null)

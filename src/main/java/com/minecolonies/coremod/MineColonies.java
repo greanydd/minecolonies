@@ -143,14 +143,15 @@ public class MineColonies
         getNetwork().registerMessage(HireFireMessage.class, HireFireMessage.class, 28, Side.SERVER);
         getNetwork().registerMessage(WorkOrderChangeMessage.class, WorkOrderChangeMessage.class, 29, Side.SERVER);
         getNetwork().registerMessage(AssignFieldMessage.class, AssignFieldMessage.class, 30, Side.SERVER);
-        getNetwork().registerMessage(AssignmentModeMessage.class, AssignmentModeMessage.class, 31, Side.SERVER);
-        getNetwork().registerMessage(GuardTaskMessage.class, GuardTaskMessage.class, 32, Side.SERVER);
-        getNetwork().registerMessage(GuardScepterMessage.class, GuardScepterMessage.class, 33, Side.SERVER);
-        getNetwork().registerMessage(RecallTownhallMessage.class, RecallTownhallMessage.class, 34, Side.SERVER);
-        getNetwork().registerMessage(TransferItemsRequestMessage.class, TransferItemsRequestMessage.class, 35, Side.SERVER);
-        getNetwork().registerMessage(MarkBuildingDirtyMessage.class, MarkBuildingDirtyMessage.class, 36, Side.SERVER);
-        getNetwork().registerMessage(ChangeFreeToInteractBlockMessage.class, ChangeFreeToInteractBlockMessage.class, 37, Side.SERVER);
-
+        getNetwork().registerMessage(AssignmentModeFieldMessage.class, AssignmentModeFieldMessage.class, 31, Side.SERVER);
+        getNetwork().registerMessage(AssignPaddockMessage.class, AssignPaddockMessage.class, 32, Side.SERVER);
+        getNetwork().registerMessage(AssignmentModePaddockMessage.class, AssignmentModePaddockMessage.class, 33, Side.SERVER);
+        getNetwork().registerMessage(GuardTaskMessage.class, GuardTaskMessage.class, 34, Side.SERVER);
+        getNetwork().registerMessage(GuardScepterMessage.class, GuardScepterMessage.class, 35, Side.SERVER);
+        getNetwork().registerMessage(RecallTownhallMessage.class, RecallTownhallMessage.class, 36, Side.SERVER);
+        getNetwork().registerMessage(TransferItemsRequestMessage.class, TransferItemsRequestMessage.class, 37, Side.SERVER);
+        getNetwork().registerMessage(MarkBuildingDirtyMessage.class, MarkBuildingDirtyMessage.class, 38, Side.SERVER);
+        getNetwork().registerMessage(ChangeFreeToInteractBlockMessage.class, ChangeFreeToInteractBlockMessage.class, 39, Side.SERVER);
 
         //Client side only
         getNetwork().registerMessage(BlockParticleEffectMessage.class, BlockParticleEffectMessage.class, 50, Side.CLIENT);
