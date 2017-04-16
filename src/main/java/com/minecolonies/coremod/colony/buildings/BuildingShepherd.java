@@ -33,6 +33,7 @@ import com.minecolonies.coremod.entity.ai.citizen.shepherd.Paddock;
 import com.minecolonies.coremod.entity.ai.citizen.shepherd.PaddockView;
 import com.minecolonies.coremod.network.messages.AssignPaddockMessage;
 import com.minecolonies.coremod.network.messages.AssignmentModePaddockMessage;
+import com.minecolonies.coremod.tileentities.PaddockTileEntity;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.coremod.util.LanguageHandler;
 import com.minecolonies.coremod.util.Utils;
@@ -292,18 +293,17 @@ public class BuildingShepherd extends AbstractBuildingWorker
               {
                   tempField.setTaken(false);
                   tempField.setOwner("");
-                  // :TODO: rbenning : Scarecrow muss ersetzt werden
-                  @NotNull final ScarecrowTileEntity scarecrowTileEntity = (ScarecrowTileEntity) getColony().getWorld().getTileEntity(field.getID());
+                  @NotNull final PaddockTileEntity paddockTileEntity = (PaddockTileEntity) getColony().getWorld().getTileEntity(field.getID());
     
                   if (getColony() != null && getColony().getWorld() != null)
                   {
                       getColony().getWorld()
-                        .notifyBlockUpdate(scarecrowTileEntity.getPos(),
-                          getColony().getWorld().getBlockState(scarecrowTileEntity.getPos()),
-                          getColony().getWorld().getBlockState(scarecrowTileEntity.getPos()),
+                        .notifyBlockUpdate(paddockTileEntity.getPos(),
+                          getColony().getWorld().getBlockState(paddockTileEntity.getPos()),
+                          getColony().getWorld().getBlockState(paddockTileEntity.getPos()),
                           BLOCK_UPDATE_FLAG);
-                      scarecrowTileEntity.setName(LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user",
-                        LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user.noone")));
+                      paddockTileEntity.setName(LanguageHandler.format("com.minecolonies.coremod.gui.paddock.user",
+                        LanguageHandler.format("com.minecolonies.coremod.gui.paddock.user.noone")));
                   }
               }
           }
@@ -382,7 +382,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
       final Paddock field : tempFields)
       {
         @NotNull
-        final ScarecrowTileEntity scarecrow = (ScarecrowTileEntity) world.getTileEntity(
+        final PaddockTileEntity scarecrow = (PaddockTileEntity) world.getTileEntity(
             field.getID());
         if (scarecrow == null)
         {
@@ -394,7 +394,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
         }
         else
         {
-          scarecrow.setName(LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user",
+          scarecrow.setName(LanguageHandler.format("com.minecolonies.coremod.gui.paddock.user",
               getWorker().getName()));
           getColony().getWorld().notifyBlockUpdate(scarecrow.getPos(),
               getColony().getWorld().getBlockState(scarecrow.getPos()),
@@ -460,14 +460,14 @@ public class BuildingShepherd extends AbstractBuildingWorker
       field.setTaken(false);
       field.setOwner("");
       @NotNull
-      final ScarecrowTileEntity scarecrowTileEntity = (ScarecrowTileEntity) getColony().getWorld().getTileEntity(
+      final PaddockTileEntity paddockTileEntity = (PaddockTileEntity) getColony().getWorld().getTileEntity(
           field.getID());
-      getColony().getWorld().notifyBlockUpdate(scarecrowTileEntity.getPos(),
-          getColony().getWorld().getBlockState(scarecrowTileEntity.getPos()),
-          getColony().getWorld().getBlockState(scarecrowTileEntity.getPos()), BLOCK_UPDATE_FLAG);
-      scarecrowTileEntity.setName(LanguageHandler.format(
-          "com.minecolonies.coremod.gui.scarecrow.user", LanguageHandler.format(
-              "com.minecolonies.coremod.gui.scarecrow.user.noone")));
+      getColony().getWorld().notifyBlockUpdate(paddockTileEntity.getPos(),
+          getColony().getWorld().getBlockState(paddockTileEntity.getPos()),
+          getColony().getWorld().getBlockState(paddockTileEntity.getPos()), BLOCK_UPDATE_FLAG);
+      paddockTileEntity.setName(LanguageHandler.format(
+          "com.minecolonies.coremod.gui.paddock.user", LanguageHandler.format(
+              "com.minecolonies.coremod.gui.paddock.user.noone")));
     }
   }
 

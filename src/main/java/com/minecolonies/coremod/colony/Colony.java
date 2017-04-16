@@ -5,6 +5,7 @@ import com.minecolonies.coremod.achievements.ModAchievements;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.BuildingFarmer;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
+import com.minecolonies.coremod.colony.buildings.BuildingShepherd;
 import com.minecolonies.coremod.colony.buildings.BuildingTownHall;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.colony.workorders.AbstractWorkOrder;
@@ -15,6 +16,7 @@ import com.minecolonies.coremod.entity.ai.citizen.farmer.Field;
 import com.minecolonies.coremod.entity.ai.citizen.shepherd.Paddock;
 import com.minecolonies.coremod.network.messages.*;
 import com.minecolonies.coremod.permissions.ColonyPermissionEventHandler;
+import com.minecolonies.coremod.tileentities.PaddockTileEntity;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.coremod.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.coremod.util.*;
@@ -132,6 +134,7 @@ public class Colony implements IColony
     private       boolean                         isBuildingsDirty = false;
     private       boolean                         manualHiring     = false;
     private       boolean                         isFieldsDirty    = false;
+    private       boolean                         isPaddocksDirty  = false;
     private       String                          name             = "ERROR(Wasn't placed by player)";
     private BlockPos         center;
     //  Administration/permissions
@@ -352,6 +355,16 @@ public class Colony implements IColony
     private void addField(@NotNull final Field field)
     {
         fields.put(field.getID(), field);
+    }
+    
+    /**
+     * Add a Building to the Colony.
+     *
+     * @param field Field to add to the colony.
+     */
+    private void adPaddock(@NotNull final Paddock field)
+    {
+        paddocks.put(field.getID(), field);
     }
 
     /**
@@ -779,14 +792,16 @@ public class Colony implements IColony
             //Buildings
             sendBuildingPackets(oldSubscribers, hasNewSubscribers);
 
-            //Fields
+            //Fields and Paddocks
             if (!isBuildingsDirty)
             {
                 sendFieldPackets(hasNewSubscribers);
+                sendPaddockPackets(hasNewSubscribers);
             }
         }
 
         isFieldsDirty = false;
+        isPaddocksDirty = false;
         isDirty = false;
         isCitizensDirty = false;
         isBuildingsDirty = false;
@@ -906,6 +921,24 @@ public class Colony implements IColony
             for (final AbstractBuilding building : buildings.values())
             {
                 if (building instanceof BuildingFarmer)
+                {
+                    subscribers.forEach(player -> MineColonies.getNetwork().sendTo(new ColonyViewBuildingViewMessage(building), player));
+                }
+            }
+        }
+    }
+    
+    /**
+     * Sends packages to update the fields.
+     * @param hasNewSubscribers the new subscribers.
+     */
+    private void sendPaddockPackets(final boolean hasNewSubscribers)
+    {
+        if ((isPaddocksDirty && !isBuildingsDirty) || hasNewSubscribers)
+        {
+            for (final AbstractBuilding building : buildings.values())
+            {
+                if (building instanceof BuildingShepherd)
                 {
                     subscribers.forEach(player -> MineColonies.getNetwork().sendTo(new ColonyViewBuildingViewMessage(building), player));
                 }
@@ -1094,7 +1127,6 @@ public class Colony implements IColony
         removedBuildings.forEach(AbstractBuilding::destroy);
 
         @NotNull final ArrayList<Field> tempFields = new ArrayList<>(fields.values());
-
         for (@NotNull final Field field : tempFields)
         {
             if (event.world.isBlockLoaded(field.getLocation()))
@@ -1110,8 +1142,26 @@ public class Colony implements IColony
                 }
             }
         }
-
         markFieldsDirty();
+        
+        @NotNull final ArrayList<Paddock> tempPaddocks = new ArrayList<>(paddocks.values());
+        for (@NotNull final Paddock paddock : tempPaddocks)
+        {
+            if (event.world.isBlockLoaded(paddock.getLocation()))
+            {
+                final PaddockTileEntity paddockentity = (PaddockTileEntity) event.world.getTileEntity(paddock.getID());
+                if (paddockentity == null)
+                {
+                    fields.remove(paddock.getID());
+                }
+                else
+                {
+                    paddock.setInventoryField(paddockentity.getInventoryField());
+                }
+            }
+        }
+
+        markPaddocksDirty();
     }
 
     /**
@@ -1168,6 +1218,14 @@ public class Colony implements IColony
     private void markFieldsDirty()
     {
         isFieldsDirty = true;
+    }
+    
+    /**
+     * Updates all subscribers of paddocks etc.
+     */
+    private void markPaddocksDirty()
+    {
+        isPaddocksDirty = true;
     }
 
     /**
@@ -1464,6 +1522,23 @@ public class Colony implements IColony
         //field.setCustomName(LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user", LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user.noone")));
         addField(field);
         field.calculateSize(world, pos);
+        markFieldsDirty();
+    }
+    
+    /**
+     * Creates a paddock from a tile entity and adds it to the colony.
+     *
+     * @param tileEntity      the paddock entity which contains the inventory.
+     * @param inventoryPlayer the inventory of the player.
+     * @param pos             Position where the paddock has been placed.
+     * @param world           the world of the paddock.
+     */
+    public void addNewPaddock(final PaddockTileEntity tileEntity, final InventoryPlayer inventoryPlayer, final BlockPos pos, final World world)
+    {
+        @NotNull final Paddock paddock = new Paddock(tileEntity, inventoryPlayer, world, pos);
+        //field.setCustomName(LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user", LanguageHandler.format("com.minecolonies.coremod.gui.scarecrow.user.noone")));
+        adPaddock(paddock);
+        paddock.calculateSize(world, pos);
         markFieldsDirty();
     }
 

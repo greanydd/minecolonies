@@ -1,5 +1,8 @@
 package com.minecolonies.coremod.proxy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.colony.CitizenDataView;
 import com.minecolonies.coremod.configuration.ConfigurationHandler;
@@ -7,12 +10,15 @@ import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.EntityFishHook;
 import com.minecolonies.coremod.event.EventHandler;
 import com.minecolonies.coremod.event.FMLEventHandler;
-import com.minecolonies.coremod.inventory.GuiHandler;
+import com.minecolonies.coremod.inventory.PaddockGuiHandler;
+import com.minecolonies.coremod.inventory.ScarecrowGuiHandler;
 import com.minecolonies.coremod.lib.Constants;
 import com.minecolonies.coremod.sounds.ModSoundEvents;
+import com.minecolonies.coremod.tileentities.PaddockTileEntity;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.coremod.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.coremod.tileentities.TileEntityWareHouse;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -20,9 +26,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * CommonProxy of the minecolonies mod (Server and Client).
@@ -68,9 +71,11 @@ public class CommonProxy implements IProxy
     {
         GameRegistry.registerTileEntity(TileEntityColonyBuilding.class, Constants.MOD_ID + ".ColonyBuilding");
         GameRegistry.registerTileEntity(ScarecrowTileEntity.class, Constants.MOD_ID + ".Scarecrow");
+        GameRegistry.registerTileEntity(PaddockTileEntity.class, Constants.MOD_ID + ".Paddock");
         GameRegistry.registerTileEntity(TileEntityWareHouse.class, Constants.MOD_ID + ".WareHouse");
 
-        NetworkRegistry.INSTANCE.registerGuiHandler(MineColonies.instance, new GuiHandler());
+        NetworkRegistry.INSTANCE.registerGuiHandler(MineColonies.instance, new ScarecrowGuiHandler());
+        NetworkRegistry.INSTANCE.registerGuiHandler(MineColonies.instance, new PaddockGuiHandler());
     }
 
     @Override

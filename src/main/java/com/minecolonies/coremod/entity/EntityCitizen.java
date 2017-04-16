@@ -7,6 +7,7 @@ import com.minecolonies.coremod.colony.*;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.buildings.BuildingFarmer;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
+import com.minecolonies.coremod.colony.buildings.BuildingShepherd;
 import com.minecolonies.coremod.colony.jobs.*;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.configuration.Configurations;
@@ -1722,6 +1723,10 @@ public class EntityCitizen extends EntityAgeable implements INpc
         if (this.getWorkBuilding() instanceof BuildingFarmer)
         {
             ((BuildingFarmer) this.getWorkBuilding()).resetFields();
+        }
+        else if (this.getWorkBuilding() instanceof BuildingShepherd)
+        {
+            ((BuildingShepherd) this.getWorkBuilding()).resetFields();
         }
     }
 

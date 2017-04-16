@@ -31,8 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.IPlantable;
 
 /**
- * Farmer AI class.
- * Created: December 20, 2014
+ * Shepard AI class.
  */
 public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
 {
@@ -85,8 +84,8 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     private boolean horizontal;
 
     /**
-     * Constructor for the Farmer.
-     * Defines the tasks the Farmer executes.
+     * Constructor for the Shepard.
+     * Defines the tasks the Shepard executes.
      *
      * @param job a farmer job to use.
      */

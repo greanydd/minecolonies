@@ -1,12 +1,16 @@
 package com.minecolonies.coremod.entity.ai.citizen.shepherd;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.ColonyManager;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.inventory.InventoryField;
 import com.minecolonies.coremod.lib.Constants;
-import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
+import com.minecolonies.coremod.tileentities.PaddockTileEntity;
 import com.minecolonies.coremod.util.BlockPosUtil;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -18,8 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.items.SlotItemHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Handles the field class.
@@ -212,7 +214,7 @@ public class Paddock extends Container
      * @param world               the world.
      * @param location            the position of the field.
      */
-    public Paddock(@NotNull final ScarecrowTileEntity scarecrowTileEntity, final InventoryPlayer playerInventory, @NotNull final World world, @NotNull final BlockPos location)
+    public Paddock(@NotNull final PaddockTileEntity scarecrowTileEntity, final InventoryPlayer playerInventory, @NotNull final World world, @NotNull final BlockPos location)
     {
         super();
         this.colony = ColonyManager.getColony(world, location);

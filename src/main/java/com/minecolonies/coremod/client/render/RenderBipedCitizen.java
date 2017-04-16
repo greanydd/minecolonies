@@ -27,6 +27,7 @@ public class RenderBipedCitizen extends RenderBiped<EntityCitizen>
         idToMaleModelMap.put(Model.DELIVERYMAN, new ModelEntityDeliverymanMale());
         idToMaleModelMap.put(Model.LUMBERJACK, new ModelEntityLumberjackMale());
         idToMaleModelMap.put(Model.FARMER, new ModelEntityFarmerMale());
+        idToMaleModelMap.put(Model.SHEPARD, new ModelEntityFarmerMale());
         idToMaleModelMap.put(Model.FISHERMAN, new ModelEntityFishermanMale());
 
         idToFemaleModelMap.put(Model.NOBLE, new ModelEntityCitizenFemaleNoble());
@@ -36,6 +37,7 @@ public class RenderBipedCitizen extends RenderBiped<EntityCitizen>
         idToFemaleModelMap.put(Model.MINER, new ModelEntityMinerFemale());
         idToFemaleModelMap.put(Model.LUMBERJACK, new ModelEntityLumberjackFemale());
         idToFemaleModelMap.put(Model.FARMER, new ModelEntityFarmerFemale());
+        idToFemaleModelMap.put(Model.SHEPARD, new ModelEntityFarmerFemale());
         idToFemaleModelMap.put(Model.FISHERMAN, new ModelEntityFishermanFemale());
         idToFemaleModelMap.put(Model.ARCHER_GUARD, new ModelBiped());
         idToFemaleModelMap.put(Model.KNIGHT_GUARD, new ModelBiped());
@@ -88,6 +90,7 @@ public class RenderBipedCitizen extends RenderBiped<EntityCitizen>
         // Lumberjack: 4 male, 1 female
         LUMBERJACK("Lumberjack", 1),
         FARMER("Farmer", 1),
+        SHEPARD("Farmer", 1),
         FISHERMAN("Fisherman", 1),
         ARCHER_GUARD("Archer", 1),
         KNIGHT_GUARD("Knight", 1);

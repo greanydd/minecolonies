@@ -55,6 +55,11 @@ public final class RecipeHandler
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutFarmer, 1), "XXX", "X#X", "XXX", 'X', plankWood, '#', Items.WOODEN_HOE));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutFarmer, 2), "XXX", "X#X", "XXX", 'X', plankWood, '#', Items.STONE_HOE));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutField, 1), " Y ", "X#X", " X ", 'X', "stickWood", '#', Items.LEATHER, 'Y', Blocks.HAY_BLOCK));
+        
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutShepherd, 1), "XXX", "X#X", "XXX", 'X', plankWood, '#', Items.STICK));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutShepherd, 2), "XXX", "X#X", "XXX", 'X', plankWood, '#', Items.STICK));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutPaddock, 1), " Y ", "X#X", " X ", 'X', "stickWood", '#', Items.BONE, 'Y', Blocks.HAY_BLOCK));
+        
         GameRegistry.addRecipe(new ItemStack(Blocks.WEB, 1), "X X", " X ", "X X", 'X', Items.STRING);
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModBlocks.blockHutGuardTower, 2), "XXX", "X#X", "XXX", 'X', plankWood, '#', Items.BOW));
 

@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 /**
  * Class which handles the GUI inventory.
  */
-public class GuiHandler implements IGuiHandler
+public class ScarecrowGuiHandler implements IGuiHandler
 {
     @Override
     public Object getServerGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z)

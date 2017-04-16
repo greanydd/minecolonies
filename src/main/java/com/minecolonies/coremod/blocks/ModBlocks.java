@@ -27,6 +27,7 @@ public final class ModBlocks
     public static final Block blockSubstitution      = new BlockSubstitution();
     public static final Block blockSolidSubstitution = new BlockSolidSubstitution();
     public static final Block blockHutField          = new BlockHutField();
+    public static final Block blockHutPaddock        = new BlockHutPaddock();
     public static final Block blockHutGuardTower     = new BlockHutGuardTower();
     public static final Block blockHutWareHouse      = new BlockHutWareHouse();
     public static final Block blockConstructionTape  = new BlockConstructionTape();

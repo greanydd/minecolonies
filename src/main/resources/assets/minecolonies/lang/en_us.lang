@@ -141,6 +141,7 @@ com.minecolonies.coremod.gui.workerHuts.minerNode=Node
 com.minecolonies.coremod.gui.hiring.off=Automatic
 com.minecolonies.coremod.gui.workerHuts.settings=Settings
 tile.minecolonies.blockHutField.name=Field
+tile.minecolonies.blockHutPaddock.name=Paddock
 com.minecolonies.coremod.gui.workerHuts.Farmer=Farmer
 com.minecolonies.coremod.job.Deliveryman=Deliveryman
 com.minecolonies.coremod.job.Farmer=Farmer
@@ -187,6 +188,8 @@ com.minecolonies.coremod.gui.workerHuts.shepherdHut.unused=unused
 
 com.minecolonies.coremod.gui.scarecrow.user=Field used by: %s
 com.minecolonies.coremod.gui.scarecrow.user.noone=no-one
+com.minecolonies.coremod.gui.paddock.user=Paddock used by: %s
+com.minecolonies.coremod.gui.paddock.user.noone=no-one
 com.minecolonies.coremod.gui.buildtool.nohutininventory=The hut was not found in your inventory.
 com.minecolonies.coremod.gui.debugScreen.noCloseColony=No close colony!
 com.minecolonies.coremod.gui.debugScreen.nextColony=Next colony is %d blocks away (%d required to place a colony)
