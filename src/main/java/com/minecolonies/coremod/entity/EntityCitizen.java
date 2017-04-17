@@ -1726,7 +1726,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
         }
         else if (this.getWorkBuilding() instanceof BuildingShepherd)
         {
-            ((BuildingShepherd) this.getWorkBuilding()).resetFields();
+            ((BuildingShepherd) this.getWorkBuilding()).resetPaddocks();
         }
     }
 

@@ -34,7 +34,6 @@ import com.minecolonies.coremod.entity.ai.citizen.shepherd.PaddockView;
 import com.minecolonies.coremod.network.messages.AssignPaddockMessage;
 import com.minecolonies.coremod.network.messages.AssignmentModePaddockMessage;
 import com.minecolonies.coremod.tileentities.PaddockTileEntity;
-import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.coremod.util.LanguageHandler;
 import com.minecolonies.coremod.util.Utils;
 
@@ -113,7 +112,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
    * @return a list of field objects.
    */
   @NotNull
-  public List<Paddock> getFarmerFields()
+  public List<Paddock> getPaddocks()
   {
     return Collections.unmodifiableList(farmerFields);
   }
@@ -133,7 +132,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
    *
    * @param field the field to add.
    */
-  public void addFarmerFields(final Paddock field)
+  public void addPaddock(final Paddock field)
   {
     field.calculateSize(getColony().getWorld(), field.getLocation().down());
     farmerFields.add(field);
@@ -145,7 +144,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
    * @return a field object.
    */
   @Nullable
-  public Paddock getCurrentField()
+  public Paddock getCurrentPaddock()
   {
     return currentField;
   }
@@ -166,7 +165,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
    * @return a field to work on.
    */
   @Nullable
-  public Paddock getFieldToWorkOn()
+  public Paddock getPaddockToWorkOn()
   {
     Collections.shuffle(farmerFields);
     for (@NotNull
@@ -412,7 +411,7 @@ public class BuildingShepherd extends AbstractBuildingWorker
   /**
   * Resets the fields to need work again.
   */
-  public void resetFields()
+  public void resetPaddocks()
   {
     for (@NotNull
     final Paddock field : farmerFields)

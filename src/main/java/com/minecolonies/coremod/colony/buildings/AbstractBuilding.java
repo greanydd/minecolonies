@@ -98,6 +98,10 @@ public abstract class AbstractBuilding
      */
     private              boolean                 needsHoe                     = false;
     /**
+     * This flag tells if we need a shears, will be set on tool needs.
+     */
+    private              boolean                 needsShears                  = false;
+    /**
      * This flag tells if we need a pickaxe, will be set on tool needs.
      */
     private              boolean                 needsPickaxe                 = false;
@@ -928,6 +932,16 @@ public abstract class AbstractBuilding
     {
         return needsHoe;
     }
+    
+    /**
+     * Check if the worker requires a shears.
+     *
+     * @return true if so.
+     */
+    public boolean needsShears()
+    {
+        return needsShears;
+    }
 
     /**
      * Check if the worker requires a pickaxe.
@@ -987,6 +1001,16 @@ public abstract class AbstractBuilding
     public void setNeedsHoe(final boolean needsHoe)
     {
         this.needsHoe = needsHoe;
+    }
+    
+    /**
+     * Set if the worker needs a shears.
+     *
+     * @param needsShears true or false.
+     */
+    public void setNeedsShears(final boolean needsShears)
+    {
+        this.needsShears = needsShears;
     }
 
     /**

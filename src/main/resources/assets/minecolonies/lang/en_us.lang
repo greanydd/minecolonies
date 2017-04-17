@@ -81,6 +81,11 @@ entity.builder.messageNoBuilder=You need a builder in order to build or upgrade 
 entity.farmer.noSeedSet=Please define a seed to grow in the scarecrow.
 entity.farmer.NeedSeed=I need %s to plant.
 entity.farmer.noFreeFields=Place more fields to get me working.
+
+entity.shepherd.noFoodSet=Please define a food to feed in the paddock.
+entity.farmer.NeedFood=I need %s to feed.
+entity.shepherd.noFreePaddocks=Place more paddocks to get me working.
+
 achievement.upgrade.fisher.first=A fisherman.
 achievement.upgrade.fisher.max=The whale catcher!
 achievement.upgrade.farmer.first=A farmer.

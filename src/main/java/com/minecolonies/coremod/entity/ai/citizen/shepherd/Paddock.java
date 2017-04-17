@@ -15,12 +15,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.items.SlotItemHandler;
 
 /**
@@ -28,6 +30,8 @@ import net.minecraftforge.items.SlotItemHandler;
  */
 public class Paddock extends Container
 {
+  
+  // :TODO: rbenning : Verschiedene Typen für die verschiedenen Tiere. Aktuell nur Schweine implementiert
     /**
      * The size of a normal inventory.
      */
@@ -354,6 +358,7 @@ public class Paddock extends Container
      */
     public final void calculateSize(@NotNull final World world, @NotNull final BlockPos position)
     {
+   // :TODO: rbenning: Brauche ich das ?
         //Calculate in all 4 directions
         this.lengthPlusX = searchNextBlock(0, position.east(), EnumFacing.EAST, world);
         this.lengthMinusX = searchNextBlock(0, position.west(), EnumFacing.WEST, world);
@@ -501,6 +506,16 @@ public class Paddock extends Container
     {
         this.initialized = initialized;
     }
+    
+    public boolean shave()
+    {
+      return inventory.getStackInSlot(0) != ItemStack.EMPTY && inventory.getStackInSlot(0).getItem() instanceof ItemShears;
+    }
+    
+    public boolean slaughter()
+    {
+      return inventory.getStackInSlot(0) != ItemStack.EMPTY && inventory.getStackInSlot(0).getItem() instanceof ItemSword;
+    }
 
     /**
      * Getter of the seed of the field.
@@ -508,14 +523,17 @@ public class Paddock extends Container
      * @return the ItemSeed
      */
     @Nullable
-    public ItemStack getSeed()
+    public ItemStack getFood()
     {
-        if (inventory.getStackInSlot(0) != ItemStack.EMPTY && inventory.getStackInSlot(0).getItem() instanceof IPlantable)
+        // :TODO: rbenning: Food austauschen
+        if (inventory.getStackInSlot(0) != ItemStack.EMPTY && inventory.getStackInSlot(0).getItem() instanceof ItemFood)
         {
             return inventory.getStackInSlot(0);
         }
         return null;
     }
+    
+    
 
     /**
      * Getter of the length in plus x direction.
@@ -615,6 +633,7 @@ public class Paddock extends Container
      */
     public enum FieldStage
     {
+   // :TODO: rbenning: Andere Stages?
         EMPTY,
         HOED,
         PLANTED

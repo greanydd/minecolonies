@@ -758,6 +758,18 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         getOwnBuilding().setNeedsHoe(checkForTool(Utils.HOE));
         return getOwnBuilding().needsHoe();
     }
+    
+    /**
+     * Ensures that we have shears available.
+     * Will set {@code needsShears} accordingly.
+     *
+     * @return true if we have shears
+     */
+    protected boolean checkForShears()
+    {
+        getOwnBuilding().setNeedsShears(checkForTool(Utils.SHEARS));
+        return getOwnBuilding().needsShears();
+    }
 
     /**
      * Wait for a needed pickaxe.

@@ -200,6 +200,25 @@ public enum AIState
      */
     FARMER_OBSERVE,
 
+    /*
+###SHEPHERD###
+    */
+
+    /**
+     * Slaughter animals.
+     */
+    SHEPHERD_SLAUGHTER,
+    
+    /**
+     * Looks at the paddock.
+     */
+    SHEPHERD_OBSERVE,
+
+    /**
+     * Feed animals.
+     */
+    SHEPHERD_FEED,
+
       /*
 ###Guard###
     */

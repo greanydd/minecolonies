@@ -1,15 +1,17 @@
 package com.minecolonies.coremod.entity.ai.citizen.shepherd;
 
-import static com.minecolonies.coremod.entity.ai.util.AIState.FARMER_INITIALIZE;
-import static com.minecolonies.coremod.entity.ai.util.AIState.FARMER_OBSERVE;
 import static com.minecolonies.coremod.entity.ai.util.AIState.FARMER_WORK;
 import static com.minecolonies.coremod.entity.ai.util.AIState.IDLE;
 import static com.minecolonies.coremod.entity.ai.util.AIState.PREPARING;
+import static com.minecolonies.coremod.entity.ai.util.AIState.SHEPHERD_FEED;
+import static com.minecolonies.coremod.entity.ai.util.AIState.SHEPHERD_OBSERVE;
+import static com.minecolonies.coremod.entity.ai.util.AIState.SHEPHERD_SLAUGHTER;
 import static com.minecolonies.coremod.entity.ai.util.AIState.START_WORKING;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.blocks.BlockHutField;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.BuildingShepherd;
@@ -25,9 +27,15 @@ import com.minecolonies.coremod.util.Utils;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.IGrowable;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.IPlantable;
 
 /**
@@ -52,6 +60,18 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      */
     private static final double  XP_PER_HARVEST      = 0.5;
     /**
+     * How far to check for animals.
+     */
+    private static final double PADDOCK_SIZE         = 10;
+    /**
+     * Minimal number of animals.
+     */
+    private static final double MIN_ENTITIES         = 10;
+    /**
+     * Maximal number of animals.
+     */
+    private static final double MAX_ENTITIES         = 20;
+    /**
      * How long to wait after looking to decide what to do.
      */
     private static final int     LOOK_WAIT           = 100;
@@ -69,12 +89,14 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     /**
      * Defines if the farmer should request seeds for the current field.
      */
-    private boolean requestSeeds = true;
+ // :TODO: rbenning: Keine Seeds
+    private boolean requestFood = true;
 
     /**
      * Defines if the farmer should try to get the seeds from his chest.
      */
-    private boolean shouldTryToGetSeed = true;
+    // :TODO: rbenning: Keine Seeds
+    private boolean shouldTryToGetFood = true;
 
     /**
      * Variables used in handleOffset.
@@ -84,10 +106,10 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     private boolean horizontal;
 
     /**
-     * Constructor for the Shepard.
-     * Defines the tasks the Shepard executes.
+     * Constructor for the shepherd.
+     * Defines the tasks the shepherd executes.
      *
-     * @param job a farmer job to use.
+     * @param job a shepherd job to use.
      */
     public EntityAIWorkShepherd(@NotNull final JobShepherd job)
     {
@@ -95,12 +117,14 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
         super.registerTargets(
           new AITarget(IDLE, () -> START_WORKING),
           new AITarget(START_WORKING, this::startWorkingAtOwnBuilding),
-          new AITarget(PREPARING, this::prepareForFarming),
-          new AITarget(FARMER_INITIALIZE, this::initialize),
-          new AITarget(FARMER_OBSERVE, this::lookAtField),
-          new AITarget(FARMER_WORK, this::cycle)
+          new AITarget(PREPARING, this::prepareForFeeding),
+          // :TODO: rbenning : Ablaufplan
+          new AITarget(SHEPHERD_FEED, this::feed),
+          new AITarget(SHEPHERD_SLAUGHTER, this::prepareForSlaughter)
+          //new AITarget(SHEPHERD_SLAUGHTER, this::cycle)
         );
-        worker.setSkillModifier(2 * worker.getCitizenData().getEndurance() + worker.getCitizenData().getCharisma());
+        // :TODO: rbenning : Link Skill from BuildingShepard.View to this place, do not duplicate information
+        worker.setSkillModifier(2 * worker.getCitizenData().getEndurance() + worker.getCitizenData().getDexterity());
         worker.setCanPickUpLoot(true);
     }
 
@@ -125,7 +149,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      * @return the next AIState
      */
     @NotNull
-    private AIState prepareForFarming()
+    private AIState prepareForFeeding()
     {
         @Nullable final BuildingShepherd building = getOwnBuilding();
 
@@ -136,41 +160,32 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
 
         building.syncWithColony(world);
 
-        if (building.getFarmerFields().size() < getOwnBuilding().getBuildingLevel() && !building.assignManually())
+        if (building.getPaddocks().size() < getOwnBuilding().getBuildingLevel() && !building.assignManually())
         {
-            searchAndAddFields();
+           // :TODO: rbenning : Neue Felder aufnehmen
+            searchAndAddPaddocks();
         }
 
         if (building.hasNoFields())
         {
-            chatSpamFilter.talkWithoutSpam("entity.farmer.noFreeFields");
+            chatSpamFilter.talkWithoutSpam("entity.shepherd.noFreePaddocks");
             return AIState.PREPARING;
         }
 
-        //If the farmer has no currentField and there is no field which needs work, check fields.
-        if (building.getCurrentField() == null && building.getFieldToWorkOn() == null)
+        if (building.getCurrentPaddock() == null && building.getPaddockToWorkOn() == null)
         {
-            building.resetFields();
+            building.resetPaddocks();
             return AIState.IDLE;
         }
 
-        @Nullable final Paddock currentField = building.getCurrentField();
+        @Nullable final Paddock currentField = building.getCurrentPaddock();
 
+        // :TODO: rbenning : Wann wird das zurückgesetzt?
         if (currentField.needsWork())
         {
-            if (currentField.isInitialized())
+          if (canGoFeeding(currentField, building))
             {
-                walkToBlock(currentField.getLocation());
-                return AIState.FARMER_OBSERVE;
-            }
-            else if (canGoPlanting(currentField, building) && !checkForHoe())
-            {
-                return walkToBlock(currentField.getLocation()) ? AIState.PREPARING : AIState.FARMER_INITIALIZE;
-            }
-            else if (containsPlants(currentField) && !walkToBuilding() && !canGoPlanting(currentField, building))
-            {
-                currentField.setInitialized(true);
-                currentField.setNeedsWork(false);
+                return walkToBlock(currentField.getLocation()) ? AIState.PREPARING : AIState.SHEPHERD_FEED;
             }
         }
         else
@@ -194,16 +209,16 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     /**
      * Searches and adds a field that has not been taken yet for the farmer and then adds it to the list.
      */
-    private void searchAndAddFields()
+    private void searchAndAddPaddocks()
     {
         final Colony colony = worker.getColony();
         if (colony != null)
         {
-            @Nullable final Paddock newField = colony.getFreePaddock(worker.getName());
+            @Nullable final Paddock newPaddock = colony.getFreePaddock(worker.getName());
 
-            if (newField != null && getOwnBuilding() != null)
+            if (newPaddock != null && getOwnBuilding() != null)
             {
-                getOwnBuilding().addFarmerFields(newField);
+                getOwnBuilding().addPaddock(newPaddock);
             }
         }
     }
@@ -214,39 +229,42 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      * @param currentField the field to plant.
      * @return true if he is ready.
      */
-    private boolean canGoPlanting(@NotNull final Paddock currentField, @NotNull final BuildingShepherd buildingFarmer)
+    private boolean canGoFeeding(@NotNull final Paddock currentField, @NotNull final BuildingShepherd buildingFarmer)
     {
-        if (currentField.getSeed() == null)
+      // :TODO: rbenning : Das Essen ist eigentlich durch den Typ festgesetzt.
+        if (currentField.getFood() == null)
         {
-            chatSpamFilter.talkWithoutSpam("entity.farmer.noSeedSet");
+          //MineColonies.getLogger().info("entity.shepherd.noFoodSet");
+            chatSpamFilter.talkWithoutSpam("entity.shepherd.noFoodSet");
             buildingFarmer.setCurrentField(null);
             return false;
         }
 
-        if (shouldTryToGetSeed)
+        if (shouldTryToGetFood)
         {
-            final ItemStack seeds = currentField.getSeed();
-            final int slot = worker.findFirstSlotInInventoryWith(seeds.getItem(), seeds.getItemDamage());
+            final ItemStack food = currentField.getFood();
+            final int slot = worker.findFirstSlotInInventoryWith(food.getItem(), food.getItemDamage());
             if (slot != -1)
             {
-                requestSeeds = false;
+                requestFood = false;
             }
             if (!walkToBuilding())
             {
-                if (isInHut(seeds))
+                if (isInHut(food))
                 {
-                    requestSeeds = false;
-                    isInHut(seeds);
+                    requestFood = false;
+                    isInHut(food);
                 }
-                shouldTryToGetSeed = requestSeeds;
-                if (requestSeeds)
+                shouldTryToGetFood = requestFood;
+                if (requestFood)
                 {
-                    chatSpamFilter.talkWithoutSpam("entity.farmer.NeedSeed", seeds.getItem().getItemStackDisplayName(seeds));
+                  //MineColonies.getLogger().info("entity.shepherd.NeedFood");
+                    chatSpamFilter.talkWithoutSpam("entity.shepherd.NeedFood", food.getItem().getItemStackDisplayName(food));
                 }
             }
         }
 
-        return !shouldTryToGetSeed;
+        return !shouldTryToGetFood;
     }
 
     /**
@@ -255,25 +273,25 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      * @param field the field to check.
      * @return Boolean if there were plants found.
      */
-    private boolean containsPlants(final Paddock field)
+    private boolean containsAnimals(final Paddock field)
     {
-        BlockPos position;
-        IBlockState blockState;
-
-        while (handleOffset(field))
+        MinecraftServer tServer = DimensionManager.getWorld(0).getMinecraftServer();
+        for(Entity entity : tServer.getEntityWorld().getLoadedEntityList())
         {
-            // Check to see if the block is a plant, and if it is, break it.
-            position = field.getLocation().down().south(workingOffset.getZ()).east(workingOffset.getX());
-            blockState = world.getBlockState(position.up());
-
-            if (blockState.getBlock() instanceof BlockCrops)
+          if (entity instanceof EntityPig)
+          {
+            double distance = entity.getDistanceSq(field.getLocation());
+            // :TODO: rbenning : remove me
+            MineColonies.getLogger().info("Pig at distance " + distance);
+            if (distance < PADDOCK_SIZE)
             {
-                return true;
+              return true;
             }
+          }
         }
         return false;
     }
-
+    
     /**
      * Handles the offset of the field for the farmer.
      *
@@ -385,12 +403,12 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     {
         @Nullable final BuildingShepherd buildingFarmer = getOwnBuilding();
 
-        if (buildingFarmer == null || checkForHoe() || buildingFarmer.getCurrentField() == null)
+        if (buildingFarmer == null || checkForHoe() || buildingFarmer.getCurrentPaddock() == null)
         {
             return AIState.PREPARING;
         }
 
-        @Nullable final Paddock field = buildingFarmer.getCurrentField();
+        @Nullable final Paddock field = buildingFarmer.getCurrentPaddock();
 
         if (workingOffset != null)
         {
@@ -475,8 +493,8 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      */
     private void resetVariables()
     {
-        requestSeeds = true;
-        shouldTryToGetSeed = true;
+        requestFood = true;
+        shouldTryToGetFood = true;
     }
 
     /**
@@ -502,65 +520,79 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      * This (re)initializes a field.
      * Checks the block above to see if it is a plant, if so, breaks it. Then tills.
      */
-    private AIState initialize()
+    private AIState feed()
     {
         @Nullable final BuildingShepherd buildingFarmer = getOwnBuilding();
-
-        if (buildingFarmer == null || checkForHoe() || buildingFarmer.getCurrentField() == null)
+        if (buildingFarmer == null || buildingFarmer.getCurrentPaddock() == null)
         {
             return AIState.PREPARING;
         }
 
-        @Nullable final Paddock field = buildingFarmer.getCurrentField();
-
-        if (workingOffset != null)
+        @Nullable final Paddock field = buildingFarmer.getCurrentPaddock();
+        MinecraftServer tServer = DimensionManager.getWorld(0).getMinecraftServer();
+        int matchingEntities = 0;
+        int inlove = 0;
+        int child = 0;
+        MineColonies.getLogger().info("Feeding");
+        for(Entity entity : tServer.getEntityWorld().getLoadedEntityList())
         {
-            final BlockPos position = field.getLocation().down().south(workingOffset.getZ()).east(workingOffset.getX());
-            // Still moving to the block
-            if (walkToBlock(position.up()))
+          if (entity instanceof EntityPig)
+          {
+            double distance = entity.getDistanceSq(field.getLocation());
+            // :TODO: rbenning : remove me
+            //MineColonies.getLogger().info("Find pig at distance " + distance);
+            if (distance < 250)
             {
-                return AIState.FARMER_INITIALIZE;
+              matchingEntities++;
+              EntityPig pig = (EntityPig) entity;
+              ItemStack tFood = field.getFood();
+              pig.isBreedingItem(tFood);
+              if (pig.isInLove())
+              {
+                inlove++;
+              }
+              if (pig.isChild())
+              {
+                child++;
+              }
+              Item tItem = tFood.getItem();
+              final int slot = worker.findFirstSlotInInventoryWith(tItem, tFood.getItemDamage());
+              
+              if (slot != -1)
+              {
+                  if (pig.isBreedingItem(tFood) && pig.getGrowingAge() == 0 && !pig.isInLove())
+                  {
+                    MineColonies.getLogger().info("feeding adult " + pig.getUniqueID());
+                    getInventory().decrStackSize(slot, 1);
+                    pig.setInLove(null);
+                    setDelay(STANDARD_DELAY);
+                    return matchingEntities < MAX_ENTITIES ? AIState.SHEPHERD_FEED : AIState.SHEPHERD_SLAUGHTER;
+                  }
+                  else if (pig.isChild() && pig.isBreedingItem(tFood))
+                  {
+                    MineColonies.getLogger().info("feeding child " + pig.getUniqueID());
+                    getInventory().decrStackSize(slot, 1);
+                    pig.ageUp((int)((float)(-pig.getGrowingAge() / 20) * 0.1F), true);
+                    setDelay(STANDARD_DELAY);
+                    return matchingEntities < MAX_ENTITIES ? AIState.SHEPHERD_FEED : AIState.SHEPHERD_SLAUGHTER;
+                  }
+              }
+              else
+              {
+                setDelay(STANDARD_DELAY);
+                return AIState.IDLE;
+              }
             }
-
-            // Check to see if the block is a plant, and if it is, break it.
-            final IBlockState blockState = world.getBlockState(position.up());
-
-            if (blockState.getBlock() instanceof IGrowable
-                  && (
-                       !(blockState.getBlock() instanceof BlockCrops)
-                         || ((BlockCrops) blockState.getBlock()).getItem(world, position.up(), blockState) != field.getSeed())
-              )
-            {
-                mineBlock(position.up());
-                setDelay(getLevelDelay());
-                return AIState.FARMER_INITIALIZE;
-            }
-
-            // hoe the block if able to.
-            if (hoeIfAble(position, field))
-            {
-                setDelay(getLevelDelay());
-                return AIState.FARMER_INITIALIZE;
-            }
-
-            if (shouldPlant(position, field) && !plantCrop(field.getSeed(), position))
-            {
-                resetVariables();
-                return AIState.PREPARING;
-            }
+          }
         }
-
-        if (!handleOffset(field))
+        MineColonies.getLogger().info("pigs " + matchingEntities + ", " + inlove + ", " + child);
+        if (matchingEntities < 2)
         {
-            resetVariables();
-            shouldDumpInventory = true;
-            field.setInitialized(true);
-            field.setNeedsWork(false);
-            return AIState.IDLE;
+          MineColonies.getLogger().info("to few pigs " + matchingEntities);
+          return AIState.PREPARING;
         }
-
-        setDelay(getLevelDelay());
-        return AIState.FARMER_INITIALIZE;
+        setDelay(STANDARD_DELAY);
+        return AIState.SHEPHERD_FEED;
     }
 
     /**
@@ -594,9 +626,9 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
     {
         @Nullable final ItemStack itemStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(position.up()));
 
-        if (itemStack != null && itemStack.getItem() == field.getSeed().getItem())
+        if (itemStack != null && itemStack.getItem() == field.getFood().getItem())
         {
-            requestSeeds = false;
+            requestFood = false;
         }
 
         return !field.isNoPartOfField(world, position) && !(world.getBlockState(position.up()).getBlock() instanceof BlockCrops)
@@ -621,7 +653,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
             @NotNull final IPlantable seed = (IPlantable) item.getItem();
             world.setBlockState(position.up(), seed.getPlant(world, position));
             getInventory().decrStackSize(slot, 1);
-            requestSeeds = false;
+            requestFood = false;
             //Flag 1+2 is needed for updates
             return true;
         }
@@ -665,35 +697,16 @@ public class EntityAIWorkShepherd extends AbstractEntityAIInteract<JobShepherd>
      * Checks to see if there are any harvestable crops,
      * if so go to FARMER_WORK, if not, set needs work to false and go to IDLE.
      */
-    private AIState lookAtField()
+    private AIState prepareForSlaughter()
     {
         @Nullable final BuildingShepherd buildingFarmer = getOwnBuilding();
 
-        if (buildingFarmer == null || checkForHoe() || buildingFarmer.getCurrentField() == null)
+        if (buildingFarmer == null || checkForWeapon() || buildingFarmer.getCurrentPaddock() == null)
         {
             return AIState.PREPARING;
         }
 
-        @Nullable final Paddock field = buildingFarmer.getCurrentField();
-
-        setDelay(LOOK_WAIT);
-        if (handleOffsetHarvest(field))
-        {
-            return AIState.FARMER_WORK;
-        }
-        else
-        {
-            if (containsPlants(field))
-            {
-                field.setNeedsWork(false);
-                return AIState.PREPARING;
-            }
-            else
-            {
-                field.setInitialized(false);
-                return AIState.PREPARING;
-            }
-        }
+        return AIState.PREPARING;
     }
 
     /**
