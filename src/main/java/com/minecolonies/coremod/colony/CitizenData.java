@@ -3,6 +3,7 @@ package com.minecolonies.coremod.colony;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
+import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker.Skill;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.configuration.Configurations;
 import com.minecolonies.coremod.entity.EntityCitizen;
@@ -650,6 +651,30 @@ public class CitizenData
     public int getEndurance()
     {
         return endurance;
+    }
+    
+    /**
+     * Skill getter by {@link Skill}.
+     * @param skill Selected skill.
+     * @return Apropiate skill value or 0 if {@link Skill#PLACEHOLDER}.
+     */
+    public int getSkill(Skill skill)
+    {
+      switch (skill)
+      {
+        case CHARISMA:
+          return getCharisma();
+        case DEXTERITY:
+          return getDexterity();
+        case ENDURANCE:
+          return getEndurance();
+        case INTELLIGENCE:
+          return getIntelligence();
+        case STRENGTH:
+          return getStrength();
+        default:
+          return 0;
+      }
     }
 
     /**

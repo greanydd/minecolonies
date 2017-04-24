@@ -1,29 +1,70 @@
 package com.minecolonies.coremod.entity;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.achievements.ModAchievements;
 import com.minecolonies.coremod.client.render.RenderBipedCitizen;
-import com.minecolonies.coremod.colony.*;
+import com.minecolonies.coremod.colony.CitizenData;
+import com.minecolonies.coremod.colony.CitizenDataView;
+import com.minecolonies.coremod.colony.Colony;
+import com.minecolonies.coremod.colony.ColonyManager;
+import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.buildings.BuildingFarmer;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
 import com.minecolonies.coremod.colony.buildings.BuildingShepherd;
-import com.minecolonies.coremod.colony.jobs.*;
+import com.minecolonies.coremod.colony.jobs.AbstractJob;
+import com.minecolonies.coremod.colony.jobs.JobFisherman;
+import com.minecolonies.coremod.colony.jobs.JobGuard;
+import com.minecolonies.coremod.colony.jobs.JobLumberjack;
+import com.minecolonies.coremod.colony.jobs.JobMiner;
 import com.minecolonies.coremod.colony.permissions.Permissions;
 import com.minecolonies.coremod.configuration.Configurations;
 import com.minecolonies.coremod.entity.ai.basic.AbstractEntityAIInteract;
-import com.minecolonies.coremod.entity.ai.minimal.*;
+import com.minecolonies.coremod.entity.ai.minimal.EntityAICitizenAvoidEntity;
+import com.minecolonies.coremod.entity.ai.minimal.EntityAICitizenWander;
+import com.minecolonies.coremod.entity.ai.minimal.EntityAIGoHome;
+import com.minecolonies.coremod.entity.ai.minimal.EntityAIOpenFenceGate;
+import com.minecolonies.coremod.entity.ai.minimal.EntityAISleep;
 import com.minecolonies.coremod.entity.pathfinding.PathNavigate;
 import com.minecolonies.coremod.entity.pathfinding.WalkToProxy;
 import com.minecolonies.coremod.inventory.InventoryCitizen;
 import com.minecolonies.coremod.lib.Constants;
 import com.minecolonies.coremod.network.messages.BlockParticleEffectMessage;
-import com.minecolonies.coremod.util.*;
+import com.minecolonies.coremod.util.BlockPosUtil;
+import com.minecolonies.coremod.util.EntityUtils;
+import com.minecolonies.coremod.util.ExperienceUtils;
+import com.minecolonies.coremod.util.InventoryUtils;
+import com.minecolonies.coremod.util.LanguageHandler;
+import com.minecolonies.coremod.util.Log;
+import com.minecolonies.coremod.util.SoundUtils;
+import com.minecolonies.coremod.util.Utils;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.*;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.INpc;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIOpenDoor;
+import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.ai.EntityAIWatchClosest2;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityEnderman;
@@ -41,7 +82,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -49,11 +94,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Field;
-import java.util.*;
 
 /**
  * The Class used to represent the citizen entities.
@@ -1755,4 +1795,5 @@ public class EntityCitizen extends EntityAgeable implements INpc
         NEED_ASSISTANCE,
         PATHFINDING_ERROR
     }
+
 }
